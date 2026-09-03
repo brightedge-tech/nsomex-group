@@ -4,9 +4,15 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { ContactSection } from "@/components/features/home/contact-section";
-import { HeroSection } from "@/components/features/home/hero-section";
 import { PillarsSection } from "@/components/features/home/pillars-section";
 import { StructureSection } from "@/components/features/home/structure-section";
+import { Hero } from "@/components/home/Hero";
+import { Solutions } from "@/components/home/Solutions";
+import { OrbitAI } from "@/components/home/OrbitAI";
+import { Marketplace } from "@/components/home/Marketplace";
+import { Projects } from "@/components/home/Projects";
+import { Knowledge } from "@/components/home/Knowledge";
+import { CTA } from "@/components/home/CTA";
 
 export default function Home() {
   return (
@@ -31,9 +37,15 @@ export default function Home() {
           </Button>
         </motion.header>
 
-        <HeroSection />
+        <Hero />
+        <Solutions />
         <PillarsSection />
         <StructureSection />
+        <OrbitAI />
+        <Marketplace />
+        <Projects />
+        <Knowledge />
+        <CTA />
         <ContactSection />
       </Container>
     </div>
