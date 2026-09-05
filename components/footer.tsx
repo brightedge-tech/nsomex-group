@@ -56,7 +56,7 @@ export function Footer() {
             <h4 className="font-semibold text-slate-900">Marketplace</h4>
             <ul className="mt-3 space-y-2 text-sm text-slate-600">
               {marketplaceLinks.map((link) => (
-                <li key={link.href}><Link href={link.href}>{link.label}</Link></li>
+                <li key={`${link.href}-${link.label}`}><Link href={link.href}>{link.label}</Link></li>
               ))}
             </ul>
           </div>
@@ -65,7 +65,7 @@ export function Footer() {
             <h4 className="font-semibold text-slate-900">For Suppliers</h4>
             <ul className="mt-3 space-y-2 text-sm text-slate-600">
               {supplierLinks.map((link) => (
-                <li key={link.href}><Link href={link.href}>{link.label}</Link></li>
+                <li key={`${link.href}-${link.label}`}><Link href={link.href}>{link.label}</Link></li>
               ))}
             </ul>
           </div>
@@ -74,7 +74,7 @@ export function Footer() {
             <h4 className="font-semibold text-slate-900">Company</h4>
             <ul className="mt-3 space-y-2 text-sm text-slate-600">
               {companyLinks.map((link) => (
-                <li key={link.href}><Link href={link.href}>{link.label}</Link></li>
+                <li key={`${link.href}-${link.label}`}><Link href={link.href}>{link.label}</Link></li>
               ))}
             </ul>
           </div>
@@ -83,7 +83,7 @@ export function Footer() {
             <h4 className="font-semibold text-slate-900">Legal</h4>
             <ul className="mt-3 space-y-2 text-sm text-slate-600">
               {legalLinks.map((link) => (
-                <li key={link.href}><Link href={link.href}>{link.label}</Link></li>
+                <li key={`${link.href}-${link.label}`}><Link href={link.href}>{link.label}</Link></li>
               ))}
             </ul>
             <div className="mt-5 flex gap-2">
