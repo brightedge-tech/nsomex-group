@@ -43,7 +43,7 @@ export const categories = [
   { slug: "tools-hardware", title: "Tools & Hardware" },
 ];
 
-const suppliers: Supplier[] = [
+export const suppliers: Supplier[] = [
   { id: "s-201", name: "SolarTech Africa", slug: "solartech-africa", location: "Johannesburg, South Africa", verified: true, rating: 4.8, yearsInBusiness: 12, description: "Engineering and manufacturing partner for commercial solar infrastructure across Africa.", certifications: ["ISO 9001", "IEC 62109", "SABS Certified"], factory: "12,000 m2 power electronics facility with in-house testing laboratory." },
   { id: "s-202", name: "BuildWorks Ltd", slug: "buildworks-ltd", location: "Nairobi, Kenya", verified: true, rating: 4.6, yearsInBusiness: 18, description: "Heavy equipment distributor and service partner for civil construction projects.", certifications: ["ISO 9001", "OEM Authorized Dealer"], factory: "Regional equipment yard with parts warehouse and service bays." },
   { id: "s-203", name: "PureWater Co", slug: "purewater-co", location: "Lagos, Nigeria", verified: true, rating: 4.9, yearsInBusiness: 9, description: "Modular water treatment manufacturer serving municipal and industrial customers.", certifications: ["ISO 14001", "NSF Certified"], factory: "Fabrication and membrane assembly plant with water quality testing." },

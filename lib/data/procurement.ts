@@ -1,4 +1,4 @@
-import { buyer, inquiries as legacyInquiries, orders as legacyOrders, rfqs, quotations, notifications } from "@/lib/data/platform";
+import { buyer, inquiries as legacyInquiries, orders as legacyOrders, rfqs, notifications } from "@/lib/data/platform";
 import { getProduct, getSupplier } from "@/lib/data/marketplace";
 
 export const procurementInquiries = [
@@ -51,3 +51,4 @@ export function getProductForInquiry(id: string) { const inquiry = procurementIn
 export function getSupplierForOrder(id: string) { const order = getProcurementOrder(id); return order ? getSupplier(order.supplier.toLowerCase().replace(/\s+/g, "-")) : undefined; }
 
 export { buyer, legacyInquiries, legacyOrders };
+export { rfqs, notifications };

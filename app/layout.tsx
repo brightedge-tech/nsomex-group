@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { GlobalLayout } from "@/components/layout/global-layout";
+import { ToastProvider } from "@/components/ui/ToastProvider";
+import { config } from "@/lib/config";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: process.env.NEXT_PUBLIC_APP_NAME ?? "NSOMEX Orbit",
-  description:
-    process.env.NEXT_PUBLIC_APP_DESCRIPTION ??
-    "A modern starter experience for the NSOMEX Orbit platform.",
+  title: config.appName,
+  description: config.appDescription,
 };
 
 export default function RootLayout({
@@ -19,7 +19,9 @@ export default function RootLayout({
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full bg-slate-50 text-slate-900">
         <AuthProvider>
-          <GlobalLayout>{children}</GlobalLayout>
+          <ToastProvider>
+            <GlobalLayout>{children}</GlobalLayout>
+          </ToastProvider>
         </AuthProvider>
       </body>
     </html>

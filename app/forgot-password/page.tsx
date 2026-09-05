@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Container } from "@/components/ui/container";
+import { authService } from "@/lib/services/authService";
 
 export default function ForgotPasswordPage() {
   const [submitted, setSubmitted] = useState(false);
   const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
 
   return (
     <main className="py-16">
@@ -20,11 +22,14 @@ export default function ForgotPasswordPage() {
           {!submitted ? (
             <form
               className="mt-8 space-y-5"
-              onSubmit={(event) => {
+              onSubmit={async (event) => {
                 event.preventDefault();
+                const result = await authService.requestPasswordReset(email);
+                if (result.error && authService.isConfigured()) { setError("We could not start password recovery. Please try again."); return; }
                 setSubmitted(true);
               }}
             >
+              {error && <p className="rounded-xl bg-rose-50 p-3 text-sm text-rose-700">{error}</p>}
               <label className="block text-sm font-medium text-slate-700">
                 Email address
                 <input

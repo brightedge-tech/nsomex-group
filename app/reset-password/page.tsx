@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Container } from "@/components/ui/container";
+import { authService } from "@/lib/services/authService";
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
 
   const strength = useMemo(() => {
     if (password.length < 6) return { label: "Weak", color: "bg-rose-500" };
@@ -29,11 +31,15 @@ export default function ResetPasswordPage() {
           {!submitted ? (
             <form
               className="mt-8 space-y-5"
-              onSubmit={(event) => {
+              onSubmit={async (event) => {
                 event.preventDefault();
-                if (formValid) setSubmitted(true);
+                if (!formValid) return;
+                const result = await authService.updatePassword(password);
+                if (result.error && authService.isConfigured()) { setError("We could not update your password. Please use the reset link again."); return; }
+                setSubmitted(true);
               }}
             >
+              {error && <div className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</div>}
               <label className="block text-sm font-medium text-slate-700">
                 New password
                 <input

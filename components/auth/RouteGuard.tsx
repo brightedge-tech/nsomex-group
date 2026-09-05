@@ -23,7 +23,7 @@ export function RouteGuard({
     if (!allow.includes(session.role)) {
       router.replace(session.role === "guest" ? redirectTo : "/unauthorized");
     }
-  }, [allow, isLoading, router, session.role]);
+  }, [allow, isLoading, redirectTo, router, session.role]);
 
   if (isLoading) {
     return (
