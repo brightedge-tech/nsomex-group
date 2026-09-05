@@ -27,7 +27,7 @@ export default function ProfilePage() {
                   <div className="font-semibold">{s.name}</div>
                   <div className="text-sm text-slate-600">{s.category}</div>
                   <div className="mt-2">
-                    <Link href={`/marketplace/product/${s.id}`} className="text-indigo-600">View product</Link>
+                    <Link href={`/products/${s.id}`} className="text-indigo-600">View product</Link>
                   </div>
                 </div>
               ))}

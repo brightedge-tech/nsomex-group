@@ -2,6 +2,7 @@
 
 import { Container } from "@/components/ui/container";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export default function RFQPage() {
   const [rfqs, setRfqs] = useState<any[]>([]);
@@ -16,6 +17,7 @@ export default function RFQPage() {
       <Container>
         <h1 className="text-2xl font-bold">My RFQs</h1>
         <p className="mt-2 text-slate-600">List of demo RFQs saved in your browser.</p>
+        <div className="mt-5 flex flex-wrap gap-3"><Link href="/rfq/create" className="rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white">Post an RFQ</Link><Link href="/rfq/my-requests" className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">View request statuses</Link></div>
 
         <div className="mt-6 grid grid-cols-1 gap-4">
           {rfqs.length === 0 && <div className="text-sm text-slate-500">No RFQs submitted yet.</div>}

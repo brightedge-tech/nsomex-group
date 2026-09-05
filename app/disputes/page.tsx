@@ -1,0 +1,5 @@
+import Link from "next/link";
+import { Card } from "@/components/ui/card";
+import { PlatformShell, Status } from "@/components/platform/PlatformUI";
+import { disputes } from "@/lib/data/procurement";
+export default function DisputesPage() { return <PlatformShell eyebrow="Buyer protection" title="Dispute center" description="Document order issues and keep resolution steps visible. Disputes are mock frontend records in this phase." action={<Link href="/disputes/create/NSX-1028" className="rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white">Create dispute</Link>}><div className="mt-8 grid gap-4 lg:grid-cols-2">{disputes.map((dispute) => <Card key={dispute.id} className="p-5"><div className="flex justify-between gap-3"><div><h2 className="font-semibold">{dispute.id}</h2><p className="mt-1 text-sm text-slate-500">Order {dispute.orderId} · {dispute.issue}</p></div><Status>{dispute.status}</Status></div><p className="mt-4 text-sm text-slate-600">{dispute.description}</p><p className="mt-3 text-sm text-slate-500">Requested resolution: {dispute.resolution}</p></Card>)}</div></PlatformShell>; }

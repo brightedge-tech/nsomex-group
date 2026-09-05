@@ -7,17 +7,23 @@ import { Card } from "@/components/ui/card";
 export function RFQModal() {
   const { closeRFQ, product } = useRFQ();
   const [quantity, setQuantity] = useState(1);
+  const [targetPrice, setTargetPrice] = useState("");
   const [destination, setDestination] = useState("");
   const [date, setDate] = useState("");
   const [message, setMessage] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [attachments, setAttachments] = useState<Array<{ name: string; dataUrl: string }>>([]);
   const [errors, setErrors] = useState<string[]>([]);
+  const [submitted, setSubmitted] = useState(false);
 
   function submit() {
     const errs: string[] = [];
     if (!destination) errs.push("Destination is required");
     if (!date) errs.push("Required date is required");
     if (quantity <= 0) errs.push("Quantity must be greater than zero");
+    if (!name || !email || !phone) errs.push("Contact name, email and phone are required");
     setErrors(errs);
     if (errs.length) return;
 
@@ -25,16 +31,19 @@ export function RFQModal() {
       id: `rfq-${Date.now()}`,
       product: product ?? null,
       quantity,
+      targetPrice,
       destination,
       date,
       message,
+      name,
+      email,
+      phone,
       attachments,
     };
     const existing = JSON.parse(localStorage.getItem("nsomex_rfqs") || "[]");
     existing.unshift(rfq);
     localStorage.setItem("nsomex_rfqs", JSON.stringify(existing));
-    closeRFQ();
-    alert("RFQ submitted (demo)");
+    setSubmitted(true);
   }
 
   function onAttach(e: React.ChangeEvent<HTMLInputElement>) {
@@ -47,6 +56,17 @@ export function RFQModal() {
     };
     reader.readAsDataURL(f);
   }
+
+  if (submitted) return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-6">
+      <Card className="max-w-lg text-center">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-xl text-emerald-700">✓</div>
+        <h3 className="mt-4 text-xl font-semibold">Your inquiry has been received.</h3>
+        <p className="mt-2 text-sm leading-6 text-slate-600">A supplier will respond to your request. This static demo has saved the inquiry in your browser; no supplier has been contacted.</p>
+        <button onClick={closeRFQ} className="mt-6 rounded-full bg-indigo-600 px-5 py-2 text-sm font-semibold text-white">Done</button>
+      </Card>
+    </div>
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-6">
@@ -67,6 +87,9 @@ export function RFQModal() {
           <label className="text-sm">Quantity</label>
           <input type="number" value={quantity} onChange={(e) => setQuantity(Number(e.target.value))} className="w-full rounded border px-3 py-2" />
 
+          <label className="text-sm">Target price</label>
+          <input value={targetPrice} onChange={(e) => setTargetPrice(e.target.value)} placeholder="Optional" className="w-full rounded border px-3 py-2" />
+
           <label className="text-sm">Destination</label>
           <input value={destination} onChange={(e) => setDestination(e.target.value)} className="w-full rounded border px-3 py-2" />
 
@@ -75,6 +98,12 @@ export function RFQModal() {
 
           <label className="text-sm">Message / requirements</label>
           <textarea value={message} onChange={(e) => setMessage(e.target.value)} className="w-full rounded border px-3 py-2" />
+
+          <div className="grid gap-3 sm:grid-cols-3">
+            <label className="text-sm">Name<input value={name} onChange={(e) => setName(e.target.value)} className="mt-1 w-full rounded border px-3 py-2" /></label>
+            <label className="text-sm">Email<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1 w-full rounded border px-3 py-2" /></label>
+            <label className="text-sm">Phone / WhatsApp<input value={phone} onChange={(e) => setPhone(e.target.value)} className="mt-1 w-full rounded border px-3 py-2" /></label>
+          </div>
 
           <label className="text-sm">Attachments</label>
           <input type="file" onChange={onAttach} className="w-full" />

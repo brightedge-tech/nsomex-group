@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 
@@ -35,7 +36,7 @@ function IndustryCard({ title, desc }: { title: string; desc: string }) {
       </div>
 
       <div className="mt-auto flex items-center justify-between">
-        <a className="text-sm font-medium text-indigo-600 transition group-hover:underline" href="#">Learn more</a>
+        <Link className="text-sm font-medium text-indigo-600 transition group-hover:underline" href="/categories">Learn more</Link>
         <div className="text-xs text-slate-400">&gt;</div>
       </div>
     </Card>

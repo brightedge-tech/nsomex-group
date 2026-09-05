@@ -1,0 +1,86 @@
+{
+  "categories": [
+    { "slug": "industrial-equipment", "title": "Industrial Equipment" },
+    { "slug": "construction-equipment", "title": "Construction Equipment" },
+    { "slug": "mining-equipment", "title": "Mining Equipment" },
+    { "slug": "agriculture-equipment", "title": "Agriculture Equipment" },
+    { "slug": "renewable-energy", "title": "Renewable Energy" },
+    { "slug": "electrical-equipment", "title": "Electrical Equipment" },
+    { "slug": "water-filtration", "title": "Water & Filtration" },
+    { "slug": "oil-gas", "title": "Oil & Gas" },
+    { "slug": "manufacturing-equipment", "title": "Manufacturing Equipment" },
+    { "slug": "automotive", "title": "Automotive" },
+    { "slug": "heavy-machinery", "title": "Heavy Machinery" },
+    { "slug": "security-equipment", "title": "Security Equipment" },
+    { "slug": "technology-electronics", "title": "Technology & Electronics" },
+    { "slug": "healthcare-equipment", "title": "Healthcare Equipment" },
+    { "slug": "laboratory-equipment", "title": "Laboratory Equipment" },
+    { "slug": "logistics-equipment", "title": "Logistics Equipment" },
+    { "slug": "tools-hardware", "title": "Tools & Hardware" },
+    { "slug": "spare-parts", "title": "Spare Parts" },
+    { "slug": "other", "title": "Other" }
+  ],
+  "products": [
+    {
+      "id": "p-1001",
+      "name": "Industrial Solar Inverter",
+      "slug": "industrial-solar-inverter",
+      "category": "Renewable Energy",
+      "description": "High-efficiency three-phase inverter for large-scale solar installations.",
+      "price": "Contact for price",
+      "location": "South Africa",
+      "supplier": { "id": "s-201", "name": "SolarTech Africa", "verified": true },
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "p-1002",
+      "name": "Hydraulic Excavator 320",
+      "slug": "hydraulic-excavator-320",
+      "category": "Construction Equipment",
+      "description": "Medium-duty hydraulic excavator for earthmoving and civil works.",
+      "price": "$85,000",
+      "location": "Kenya",
+      "supplier": { "id": "s-202", "name": "BuildWorks Ltd", "verified": false },
+      "createdAt": "2024-01-02T00:00:00.000Z",
+      "updatedAt": "2024-01-02T00:00:00.000Z"
+    },
+    {
+      "id": "p-1003",
+      "name": "Water Filtration Unit Model A",
+      "slug": "water-filtration-unit-model-a",
+      "category": "Water & Filtration",
+      "description": "Compact modular water filtration for rural communities.",
+      "price": "Request Price",
+      "location": "Nigeria",
+      "supplier": { "id": "s-203", "name": "PureWater Co", "verified": true },
+      "createdAt": "2024-01-03T00:00:00.000Z",
+      "updatedAt": "2024-01-03T00:00:00.000Z"
+    },
+    {
+      "id": "p-1004",
+      "name": "Edge Gateway X1",
+      "slug": "edge-gateway-x1",
+      "category": "Technology & Electronics",
+      "description": "Rugged edge gateway for industrial IoT use cases.",
+      "price": "$1,200",
+      "location": "Egypt",
+      "supplier": { "id": "s-204", "name": "IoT Hub Ltd", "verified": false },
+      "createdAt": "2024-01-04T00:00:00.000Z",
+      "updatedAt": "2024-01-04T00:00:00.000Z"
+    },
+    {
+      "id": "p-1005",
+      "name": "Mining Crusher 5000",
+      "slug": "mining-crusher-5000",
+      "category": "Mining Equipment",
+      "description": "High-capacity crusher for mining operations.",
+      "price": "Contact for price",
+      "location": "Ghana",
+      "supplier": { "id": "s-205", "name": "MineEquip", "verified": true },
+      "createdAt": "2024-01-05T00:00:00.000Z",
+      "updatedAt": "2024-01-05T00:00:00.000Z"
+    }
+  ],
+  "rfqs": []
+}
