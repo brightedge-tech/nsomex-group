@@ -2,17 +2,24 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/ui/container";
 import { Card } from "@/components/ui/card";
-import { categories, getProductsByCategory, products } from "@/lib/data/marketplace";
+import { categoryService } from "@/lib/services/categoryService";
+import { productService } from "@/lib/services/productService";
 import ProductCard from "@/components/marketplace/ProductCard";
 
 export default async function CategoryRoutePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const category = categories.find((item) => item.slug === slug || item.title.toLowerCase().replace(/\s+/g, "-") === slug);
+  const [categoryResult, productsResult, categoryListResult] = await Promise.all([
+    categoryService.getBySlug(slug),
+    productService.listByCategory(slug),
+    categoryService.list(),
+  ]);
+  const category = categoryResult.error ? null : categoryResult.data;
 
   if (!category) return notFound();
 
-  const categoryProducts = getProductsByCategory(slug);
-  const featuredSuppliers = Array.from(new Map(products.filter((p) => p.categorySlug === slug).map((p) => [p.supplier.id, p.supplier])).values());
+  const categoryProducts = productsResult.error ? [] : productsResult.data;
+  const featuredSuppliers = Array.from(new Map(categoryProducts.map((product) => [product.supplier.id, product.supplier])).values());
+  const subcategories = categoryListResult.error ? [] : categoryListResult.data.filter((item) => item.parentId === category.id);
 
   return (
     <section className="py-10">
@@ -28,7 +35,7 @@ export default async function CategoryRoutePage({ params }: { params: Promise<{ 
         <div className="rounded-[2rem] border border-slate-200 bg-gradient-to-r from-indigo-50 to-slate-50 p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-600">Category</p>
           <h1 className="mt-3 text-3xl font-bold text-slate-900">{category.title}</h1>
-          <p className="mt-3 max-w-2xl text-slate-600">Explore sourcing options, supplier capabilities and equipment availability in {category.title.toLowerCase()}.</p>
+          <p className="mt-3 max-w-2xl text-slate-600">{category.description || `Explore sourcing options, supplier capabilities and equipment availability in ${category.title.toLowerCase()}.`}</p>
           <div className="mt-5 flex flex-wrap gap-3 text-sm">
             <span className="rounded-full bg-white px-3 py-1.5 text-slate-700">{categoryProducts.length} products</span>
             <span className="rounded-full bg-white px-3 py-1.5 text-slate-700">{featuredSuppliers.length} suppliers</span>
@@ -41,10 +48,7 @@ export default async function CategoryRoutePage({ params }: { params: Promise<{ 
             <Card className="p-5">
               <h2 className="font-semibold text-slate-900">Subcategories</h2>
               <ul className="mt-4 space-y-2 text-sm text-slate-600">
-                <li>Heavy machinery</li>
-                <li>Generator systems</li>
-                <li>Monitoring solutions</li>
-                <li>Service support</li>
+                {subcategories.length ? subcategories.map((item) => <li key={item.id}><Link href={`/category/${item.slug}`}>{item.title}</Link></li>) : <li>No subcategories</li>}
               </ul>
             </Card>
             <Card className="p-5">
@@ -69,7 +73,9 @@ export default async function CategoryRoutePage({ params }: { params: Promise<{ 
               </select>
             </div>
 
-            {categoryProducts.length === 0 ? (
+            {productsResult.error ? (
+              <Card className="p-8 text-center text-slate-600">Products are temporarily unavailable. Please try again later.</Card>
+            ) : categoryProducts.length === 0 ? (
               <Card className="p-8 text-center text-slate-600">No products are listed for this category yet.</Card>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

@@ -34,8 +34,9 @@ export default function ResetPasswordPage() {
               onSubmit={async (event) => {
                 event.preventDefault();
                 if (!formValid) return;
+                if (!authService.isConfigured()) { setError("Password reset is temporarily unavailable. Please request a new reset link later."); return; }
                 const result = await authService.updatePassword(password);
-                if (result.error && authService.isConfigured()) { setError("We could not update your password. Please use the reset link again."); return; }
+                if (result.error) { setError("We could not update your password. Please use the reset link again."); return; }
                 setSubmitted(true);
               }}
             >

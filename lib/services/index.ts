@@ -1,5 +1,9 @@
 export { productService } from "@/lib/services/productService";
 export { supplierService } from "@/lib/services/supplierService";
+export { categoryService } from "@/lib/services/categoryService";
+export { searchProducts } from "@/lib/services/searchService";
+export { storageService } from "@/lib/services/storageService";
+export { profileService } from "@/lib/services/profileService";
 export { rfqService, quoteService, orderService, shipmentService, notificationService, disputeService } from "@/lib/services/procurementServices";
 export { mockCreate, mockGet, mockList } from "@/lib/services/mock-service";
 export { userService } from "@/lib/services/userService";

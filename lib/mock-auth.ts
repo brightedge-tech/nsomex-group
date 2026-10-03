@@ -69,7 +69,6 @@ export function canAccessRole(currentRole: UserRole, allowedRoles: UserRole[]) {
 
 export function deriveRoleFromEmail(email: string): UserRole {
   const value = email.toLowerCase();
-  if (value.includes("admin")) return "admin";
   if (value.includes("supplier") || value.includes("factory") || value.includes("trade")) return "supplier";
   return "buyer";
 }

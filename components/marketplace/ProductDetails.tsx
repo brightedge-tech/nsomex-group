@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRFQ } from "@/components/rfq/RFQContext";
 import { Container } from "@/components/ui/container";
@@ -52,11 +53,11 @@ export function ProductDetails({ product }: { product: Product }) {
 
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_23rem]">
           <div>
-            <div className="flex min-h-[24rem] items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100 via-indigo-50 to-slate-200 p-8 text-center text-slate-500">
-              <div><div className="text-xs font-semibold uppercase tracking-[0.25em]">{product.category}</div><div className="mt-4 text-2xl font-semibold text-slate-700">{product.images[activeImage]}</div></div>
+            <div className="relative flex min-h-[24rem] items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-slate-100 via-indigo-50 to-slate-200 p-8 text-center text-slate-500">
+              {product.images[activeImage]?.startsWith("http") ? <Image src={product.images[activeImage]} alt={product.name} fill unoptimized className="object-contain" /> : <div><div className="text-xs font-semibold uppercase tracking-[0.25em]">{product.category}</div><div className="mt-4 text-2xl font-semibold text-slate-700">{product.images[activeImage] || "Product image"}</div></div>}
             </div>
             <div className="mt-3 grid grid-cols-3 gap-3">
-              {product.images.map((image, index) => <button key={image} onClick={() => setActiveImage(index)} className={`rounded-lg border p-3 text-left text-xs ${activeImage === index ? "border-indigo-500 bg-indigo-50" : "border-slate-200 bg-white"}`}>{image}</button>)}
+              {product.images.map((image, index) => <button key={`${image}-${index}`} onClick={() => setActiveImage(index)} className={`relative min-h-14 overflow-hidden rounded-lg border p-3 text-left text-xs ${activeImage === index ? "border-indigo-500 bg-indigo-50" : "border-slate-200 bg-white"}`}>{image.startsWith("http") ? <Image src={image} alt={`${product.name} view ${index + 1}`} fill unoptimized className="object-cover" /> : image}</button>)}
             </div>
             <div className="mt-10 grid gap-8 md:grid-cols-2">
               <div><h2 className="text-xl font-semibold">Product specifications</h2><dl className="mt-4 divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white">{product.specifications.map((spec) => <div key={spec.label} className="flex justify-between gap-4 p-3 text-sm"><dt className="text-slate-500">{spec.label}</dt><dd className="text-right font-medium text-slate-900">{spec.value}</dd></div>)}</dl></div>

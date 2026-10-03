@@ -2,10 +2,22 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { config as appConfig } from "@/lib/config";
 
-const protectedPrefixes = ["/account", "/rfq", "/orders", "/procurement", "/messages", "/notifications", "/supplier", "/admin", "/checkout", "/disputes"];
+const protectedPrefixes = ["/account", "/rfq", "/orders", "/procurement", "/messages", "/notifications", "/admin", "/checkout", "/disputes"];
+const supplierWorkspaceRoutes = ["/supplier/dashboard", "/supplier/company", "/supplier/inquiries", "/supplier/messages", "/supplier/orders", "/supplier/products", "/supplier/profile", "/supplier/quotations", "/supplier/settings", "/supplier/verification"];
 
 export async function proxy(request: NextRequest) {
-  if (!appConfig.supabaseConfigured) return NextResponse.next();
+  const pathname = request.nextUrl.pathname;
+  const isProtected = protectedPrefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))
+    || supplierWorkspaceRoutes.some((route) => pathname === route || pathname.startsWith(`${route}/`));
+  if (!appConfig.supabaseConfigured) {
+    if (isProtected && process.env.NODE_ENV === "production") {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = "/login";
+      loginUrl.searchParams.set("auth", "unavailable");
+      return NextResponse.redirect(loginUrl);
+    }
+    return NextResponse.next();
+  }
 
   let response = NextResponse.next({ request });
   const supabase = createServerClient(appConfig.supabaseUrl, appConfig.supabaseAnonKey, {
@@ -19,23 +31,31 @@ export async function proxy(request: NextRequest) {
     },
   });
 
-  const pathname = request.nextUrl.pathname;
-  const isProtected = protectedPrefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (!isProtected) return response;
 
-  if (!user) {
+  if (authError || !user) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
     loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (pathname.startsWith("/admin") || pathname.startsWith("/supplier")) {
-    const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-    const requiredRole = pathname.startsWith("/admin") ? "admin" : "supplier";
-    if (profile?.role !== requiredRole && profile?.role !== "admin") return NextResponse.redirect(new URL("/unauthorized", request.url));
-  }
+  const { data: profile, error: profileError } = await supabase.from("profiles").select("role,status").eq("id", user.id).maybeSingle();
+  if (profileError || !profile || profile.status === "suspended" || profile.status === "disabled") return NextResponse.redirect(new URL("/unauthorized", request.url));
+
+  const isAdminRoute = pathname.startsWith("/admin");
+  const isSupplierRoute = supplierWorkspaceRoutes.some((route) => pathname === route || pathname.startsWith(`${route}/`));
+  const buyerRoutes = ["/account", "/rfq", "/orders", "/procurement", "/checkout", "/disputes"];
+  const isBuyerRoute = buyerRoutes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+  const roleAllowed = isAdminRoute
+    ? profile.role === "admin" && profile.status === "active"
+    : isSupplierRoute
+      ? profile.role === "supplier" || profile.role === "admin"
+      : isBuyerRoute
+        ? profile.role === "buyer" || profile.role === "admin"
+        : true;
+  if (!roleAllowed) return NextResponse.redirect(new URL("/unauthorized", request.url));
 
   return response;
 }

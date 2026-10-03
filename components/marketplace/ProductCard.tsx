@@ -5,24 +5,21 @@ import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { useRFQ } from "@/components/rfq/RFQContext";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 export default function ProductCard({ product }: { product: any }) {
   const { openRFQ } = useRFQ();
+  const { favoriteIds, toggleFavorite: updateFavorite } = useAuth();
   const [favorite, setFavorite] = useState(false);
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("nsomex_saved") || "[]") as any[];
-    setFavorite(saved.some((item) => item.id === product.id));
-  }, [product.id]);
+    setFavorite(favoriteIds.includes(product.id) || saved.some((item) => item.id === product.id));
+  }, [favoriteIds, product.id]);
 
-  const toggleFavorite = () => {
-    const existing = JSON.parse(localStorage.getItem("nsomex_saved") || "[]") as any[];
-    const next = existing.some((item) => item.id === product.id)
-      ? existing.filter((item) => item.id !== product.id)
-      : [...existing, product];
-
-    localStorage.setItem("nsomex_saved", JSON.stringify(next));
-    setFavorite(next.some((item) => item.id === product.id));
+  const toggleFavorite = async () => {
+    const updated = await updateFavorite(product);
+    if (updated) setFavorite((current) => !current);
   };
 
   const markViewed = () => {

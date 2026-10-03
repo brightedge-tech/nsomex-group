@@ -25,7 +25,8 @@ export default function ForgotPasswordPage() {
               onSubmit={async (event) => {
                 event.preventDefault();
                 const result = await authService.requestPasswordReset(email);
-                if (result.error && authService.isConfigured()) { setError("We could not start password recovery. Please try again."); return; }
+                if (!authService.isConfigured()) { setError("Password recovery is temporarily unavailable. Please try again later."); return; }
+                if (result.error) { setError("We could not start password recovery. Please try again."); return; }
                 setSubmitted(true);
               }}
             >

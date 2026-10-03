@@ -2,16 +2,19 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/ui/container";
 import { Card } from "@/components/ui/card";
-import { getSupplier, products } from "@/lib/data/marketplace";
+import { supplierService } from "@/lib/services/supplierService";
+import { productService } from "@/lib/services/productService";
 import ProductCard from "@/components/marketplace/ProductCard";
 
 export default async function SupplierRoutePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const supplier = getSupplier(slug);
+  const supplierResult = await supplierService.getBySlug(slug);
+  const supplier = supplierResult.error ? null : supplierResult.data;
 
   if (!supplier) return notFound();
 
-  const supplierProducts = products.filter((product) => product.supplier.id === supplier.id);
+  const productsResult = await productService.listBySupplier(supplier.id);
+  const supplierProducts = productsResult.error ? [] : productsResult.data;
 
   return (
     <section className="py-10">
@@ -57,11 +60,11 @@ export default async function SupplierRoutePage({ params }: { params: Promise<{ 
               <button className="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700">Factory</button>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            {productsResult.error ? <Card className="p-6 text-slate-600">Supplier products are temporarily unavailable.</Card> : supplierProducts.length === 0 ? <Card className="p-6 text-slate-600">No products are listed yet.</Card> : <div className="grid gap-4 sm:grid-cols-2">
               {supplierProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
-            </div>
+            </div>}
           </div>
 
           <aside className="space-y-4">

@@ -1,51 +1,38 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Container } from "@/components/ui/container";
 import { Card } from "@/components/ui/card";
-import { categories, products as catalogProducts } from "@/lib/data/marketplace";
 import ProductCard from "@/components/marketplace/ProductCard";
-import FilterSidebar from "@/components/filters/FilterSidebar";
-
-const featuredCategories = [
-  { slug: "construction-equipment", title: "Construction", count: "420 listings" },
-  { slug: "industrial-equipment", title: "Industrial Equipment", count: "640 listings" },
-  { slug: "renewable-energy", title: "Renewable Energy", count: "240 listings" },
-  { slug: "security-surveillance", title: "Security & Surveillance", count: "185 listings" },
-  { slug: "electrical-equipment", title: "Electrical Equipment", count: "310 listings" },
-  { slug: "tools-hardware", title: "Tools & Hardware", count: "520 listings" },
-];
 
 export function Marketplace() {
   const [query, setQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  const [filters, setFilters] = useState<any>({});
-  const [products] = useState(catalogProducts);
-
-  const filtered = useMemo(() => {
-    return products.filter((p) => {
-      if (activeCategory && p.categorySlug !== activeCategory) return false;
-      if (query && !`${p.name} ${p.category} ${p.description} ${p.supplier.name}`.toLowerCase().includes(query.toLowerCase())) return false;
-      if (filters.category && p.category !== filters.category) return false;
-      if (filters.location && !p.location.toLowerCase().includes(String(filters.location).toLowerCase())) return false;
-      if (typeof filters.verified === "boolean" && p.supplier.verified !== filters.verified) return false;
-      if (filters.priceMax && typeof p.price === "string") {
-        const n = Number(String(p.price).replace(/[^0-9.]/g, ""));
-        if (!isNaN(n) && n > filters.priceMax) return false;
-      }
-      return true;
-    });
-  }, [products, filters, activeCategory, query]);
-
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState<number>(8);
-  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const paged = filtered.slice((page - 1) * pageSize, page * pageSize);
+  const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [suppliers, setSuppliers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
-    setPage(1);
-  }, [filters, query, activeCategory, pageSize]);
+    const controller = new AbortController();
+    Promise.all([
+      fetch("/api/products?pageSize=24", { signal: controller.signal }).then((response) => response.ok ? response.json() : Promise.reject()),
+      fetch("/api/categories", { signal: controller.signal }).then((response) => response.ok ? response.json() : Promise.reject()),
+      fetch("/api/suppliers?verifiedOnly=true", { signal: controller.signal }).then((response) => response.ok ? response.json() : Promise.reject()),
+    ]).then(([productResult, categoryResult, supplierResult]) => {
+      setProducts(productResult.products ?? []);
+      setCategories(categoryResult.categories ?? []);
+      setSuppliers(supplierResult.suppliers ?? []);
+      setLoadError(false);
+    }).catch((error: unknown) => {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      setLoadError(true);
+    }).finally(() => {
+      if (!controller.signal.aborted) setLoading(false);
+    });
+    return () => controller.abort();
+  }, []);
 
   return (
     <section aria-label="NSOMEX Marketplace" className="py-10">
@@ -71,7 +58,7 @@ export function Marketplace() {
               placeholder="Search products, equipment, suppliers or factories"
               className="w-full rounded-full border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
-            <Link href="/search?q=generator" className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white">Search Products</Link>
+            <Link href={`/search?q=${encodeURIComponent(query)}`} className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white">Search Products</Link>
             <Link href="/search?q=generator" className="rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700">Search by Image</Link>
           </div>
         </div>
@@ -82,11 +69,11 @@ export function Marketplace() {
             <Link href="/categories" className="text-sm font-semibold text-indigo-600">Browse all categories</Link>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {featuredCategories.map((category) => (
+            {categories.slice(0, 6).map((category) => (
               <Link key={category.slug} href={`/categories/${category.slug}`} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-indigo-300 hover:shadow-md">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-600">Category</p>
                 <h3 className="mt-3 text-lg font-semibold text-slate-900">{category.title}</h3>
-                <p className="mt-2 text-sm text-slate-500">{category.count}</p>
+                <p className="mt-2 text-sm text-slate-500">{category.description || "Browse active listings"}</p>
               </Link>
             ))}
           </div>
@@ -97,11 +84,11 @@ export function Marketplace() {
             <h2 className="text-2xl font-bold text-slate-900">Featured products</h2>
             <Link href="/products" className="text-sm font-semibold text-indigo-600">See all products</Link>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {loading ? <p role="status" className="text-sm text-slate-500">Loading marketplace products...</p> : loadError ? <p role="alert" className="text-sm text-rose-700">Marketplace products are temporarily unavailable.</p> : products.length === 0 ? <p className="text-sm text-slate-500">No products are listed yet.</p> : <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {products.slice(0, 4).map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
-          </div>
+          </div>}
         </div>
 
         <div className="mt-10 grid gap-6 lg:grid-cols-[1fr_1.2fr]">
@@ -123,15 +110,15 @@ export function Marketplace() {
           <div>
             <h2 className="text-2xl font-bold text-slate-900">Verified suppliers</h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              {catalogProducts.slice(0, 4).map((product) => (
-                <Link key={product.supplier.id} href={`/supplier/${product.supplier.slug}`} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm hover:border-indigo-300">
+              {suppliers.slice(0, 4).map((supplier) => (
+                <Link key={supplier.id} href={`/supplier/${supplier.slug}`} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm hover:border-indigo-300">
                   <div className="flex items-center justify-between">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 font-semibold text-slate-700">{product.supplier.name.slice(0, 2).toUpperCase()}</div>
-                    {product.supplier.verified && <span className="rounded-full bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700">Verified</span>}
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 font-semibold text-slate-700">{supplier.name.slice(0, 2).toUpperCase()}</div>
+                    {supplier.verified && <span className="rounded-full bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700">Verified</span>}
                   </div>
-                  <h3 className="mt-3 font-semibold text-slate-900">{product.supplier.name}</h3>
-                  <p className="mt-1 text-sm text-slate-500">{product.supplier.location}</p>
-                  <p className="mt-2 text-sm text-slate-600">{product.category}</p>
+                  <h3 className="mt-3 font-semibold text-slate-900">{supplier.name}</h3>
+                  <p className="mt-1 text-sm text-slate-500">{supplier.location}</p>
+                  <p className="mt-2 text-sm text-slate-600">{supplier.description}</p>
                 </Link>
               ))}
             </div>
