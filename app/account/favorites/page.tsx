@@ -7,8 +7,38 @@ import { Card } from "@/components/ui/card";
 import { authService } from "@/lib/services/authService";
 import { useAuth } from "@/components/auth/AuthProvider";
 
+type SavedProduct = {
+  id: string;
+  name: string;
+  slug: string;
+  category: string;
+  supplier?: { name: string; slug: string; location: string } | null;
+};
+
+function normalizeSavedProduct(item: Record<string, unknown>): SavedProduct | null {
+  const product = (item.product && typeof item.product === "object" ? item.product : item) as Record<string, unknown>;
+  if (typeof product.id !== "string" || typeof product.slug !== "string") return null;
+  const supplierValue = product.supplier;
+  const supplier = supplierValue && typeof supplierValue === "object" ? supplierValue as Record<string, unknown> : null;
+  const categoryValue = product.category;
+  const category = categoryValue && typeof categoryValue === "object"
+    ? String((categoryValue as Record<string, unknown>).name ?? "")
+    : String(categoryValue ?? "");
+  return {
+    id: product.id,
+    name: String(product.name ?? product.title ?? "Product"),
+    slug: product.slug,
+    category,
+    supplier: supplier ? {
+      name: String(supplier.name ?? supplier.company_name ?? "Supplier"),
+      slug: String(supplier.slug ?? ""),
+      location: String(supplier.location ?? supplier.country ?? ""),
+    } : null,
+  };
+}
+
 export default function FavoritesPage() {
-  const [saved, setSaved] = useState<any[]>([]);
+  const [saved, setSaved] = useState<SavedProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const { favoriteIds, toggleFavorite } = useAuth();
@@ -21,12 +51,15 @@ export default function FavoritesPage() {
           const response = await fetch("/api/favorites");
           const result = await response.json();
           if (!response.ok) throw new Error(result.error ?? "Favorites could not be loaded.");
-          if (active) setSaved((result.favorites ?? []).map((item: { product?: Record<string, unknown> }) => item.product).filter(Boolean));
+          if (active) setSaved((result.favorites ?? []).map((item: Record<string, unknown>) => normalizeSavedProduct(item)).filter((item: SavedProduct | null): item is SavedProduct => Boolean(item)));
         } catch (loadError) {
           if (active) setError(loadError instanceof Error ? loadError.message : "Favorites could not be loaded.");
         }
       } else {
-        try { if (active) setSaved(JSON.parse(localStorage.getItem("nsomex_saved") || "[]")); }
+        try {
+          const localSaved = JSON.parse(localStorage.getItem("nsomex_saved") || "[]") as Record<string, unknown>[];
+          if (active) setSaved(localSaved.map(normalizeSavedProduct).filter((item): item is SavedProduct => Boolean(item)));
+        }
         catch { if (active) setError("Saved items could not be loaded from this browser."); }
       }
       if (active) setLoading(false);
@@ -35,8 +68,12 @@ export default function FavoritesPage() {
     return () => { active = false; };
   }, [favoriteIds]);
 
-  async function removeFavorite(item: any) {
-    await toggleFavorite(item);
+  async function removeFavorite(item: SavedProduct) {
+    const removed = await toggleFavorite(item);
+    if (!removed) {
+      setError("The favorite could not be removed. Please try again.");
+      return;
+    }
     setSaved((current) => current.filter((savedItem) => savedItem.id !== item.id));
   }
 
@@ -64,9 +101,9 @@ export default function FavoritesPage() {
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {saved.map((item) => (
             <Card key={item.id} className="p-4">
-              <p className="font-semibold text-slate-900">{item.name || item.title || item.company || item.supplier?.name}</p>
-              <p className="mt-2 text-sm text-slate-500">{item.category || item.location || item.company || item.supplier?.location}</p>
-              <div className="mt-4 flex items-center gap-4"><Link href={item.supplier ? `/supplier/${item.supplier.slug}` : `/product/${item.slug}`} className="inline-flex text-sm font-semibold text-indigo-600">Open item</Link><button type="button" onClick={() => void removeFavorite(item)} className="text-sm font-semibold text-rose-700">Remove</button></div>
+              <p className="font-semibold text-slate-900">{item.name}</p>
+              <p className="mt-2 text-sm text-slate-500">{item.category || item.supplier?.location}</p>
+              <div className="mt-4 flex items-center gap-4"><Link href={`/products/${item.slug}`} className="inline-flex text-sm font-semibold text-indigo-600">Open product</Link>{item.supplier?.slug && <Link href={`/supplier/${item.supplier.slug}`} className="inline-flex text-sm font-semibold text-indigo-600">Supplier</Link>}<button type="button" onClick={() => void removeFavorite(item)} className="text-sm font-semibold text-rose-700">Remove</button></div>
             </Card>
           ))}
         </div>

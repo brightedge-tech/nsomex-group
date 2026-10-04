@@ -22,7 +22,18 @@ New mock data should be added to a domain data module and exposed through a serv
 
 Supabase integration lives under `lib/supabase/` and `lib/services/authService.ts`. The browser client uses the publishable key, the server client uses request cookies, and the admin client requires the server-only service-role key. When public Supabase variables are absent, the current mock session remains active so local frontend work continues.
 
-Apply `supabase/migrations/20260905000000_initial_nsomex.sql` with the Supabase CLI (`supabase db push`) or the SQL Editor after linking the intended project. The migration creates the core marketplace tables, foreign keys, indexes, profile trigger, and RLS policies. Review policies in the project before production launch.
+The initial schema and storage policies are in `supabase/migrations/20260905000000_initial_nsomex.sql` and `supabase/migrations/20261003000000_marketplace_security_hardening.sql`. Apply new migrations to the intended Supabase project with `supabase db push` or the SQL Editor after reviewing the target project.
+
+## Buyer data and inquiry flow
+
+- **Favorites** use `public.favorites` (`user_id`, `product_id`) with a composite primary key and owner-only RLS. The authenticated `/api/favorites` handlers derive the user from the Supabase session; the browser does not supply the owner ID. In development without Supabase, the existing local-storage mock remains available.
+- **Recently viewed** products remain in browser local storage, capped at six products. **Comparison** remains browser-local and capped at three products. Neither has a database table because these are temporary, device-specific features in the current design.
+- **Product inquiries** use `public.product_inquiries`, separate from broad RFQs. Each record relates the authenticated buyer, product, and the product's supplier company. The insert trigger derives the supplier from the product and accepts only published products from verified suppliers; clients cannot choose a supplier. It rejects repeated identical inquiries and limits each buyer to five inquiries per ten minutes.
+- Inquiry participants can read their own rows: buyers by `buyer_id`, suppliers through ownership of `supplier_company_id`. RLS allows buyers to create and close their own inquiries and suppliers to update inquiries addressed to their company. A database trigger makes the inquiry terms immutable, restricts state changes, and requires supplier response text for `responded`. No inquiry deletion is granted.
+- Supplier inquiry responses currently remain on the inquiry record. The supplier view does not expose the buyer's profile/email/phone; no profile fields beyond inquiry content are needed for the initial workflow.
+- The buyer profile summary uses the authenticated session; the profile editor loads and saves the signed-in user's profile through `/api/profile`.
+- Database triggers use the existing `notifications` table for new product inquiries (notify the addressed supplier) and supplier responses (notify the buyer). No push, SMS, or external email provider is configured; future email delivery can subscribe to those events without storing credentials in this application.
+- Existing RFQ creation and messaging screens still include mock/local-storage behavior and remain separate from the product-inquiry flow; this work does not imply that those workflows are database-backed.
 
 ## Configuration and secrets
 

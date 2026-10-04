@@ -5,7 +5,26 @@ import { config } from "@/lib/config";
 
 const SUPPLIER_SELECT = "id,company_name,slug,description,country,address,website,business_type,years_in_business,logo_url,verification_status,created_at";
 
-function normalizeSupplier(row: any) {
+type NormalizedSupplier = {
+  id: string;
+  name: string;
+  slug: string;
+  location: string;
+  verified: boolean;
+  rating: number;
+  yearsInBusiness: number;
+  description: string;
+  certifications: string[];
+  factory: string;
+  website?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  businessType?: string;
+  logo?: string | null;
+  verificationStatus?: string;
+};
+
+function normalizeSupplier(row: Record<string, any>): NormalizedSupplier {
   return {
     id: row.id,
     name: row.company_name ?? row.name ?? "Supplier",
@@ -27,7 +46,7 @@ function normalizeSupplier(row: any) {
 }
 
 export const supplierService = {
-  async list(): Promise<ApiResult<any[]>> {
+  async list(): Promise<ApiResult<NormalizedSupplier[]>> {
     const client = await getSupabaseServerClient();
     if (!client) return config.isDevelopment
       ? ok(fallbackSuppliers)
@@ -71,7 +90,7 @@ export const supplierService = {
     return ok({ items: data.map(normalizeSupplier), total, page: normalizedPage, pageSize: normalizedPageSize, totalPages: Math.ceil(total / normalizedPageSize) });
   },
 
-  async getBySlug(slug: string): Promise<ApiResult<any>> {
+  async getBySlug(slug: string): Promise<ApiResult<NormalizedSupplier>> {
     const client = await getSupabaseServerClient();
     if (!client) {
       const fallback = config.isDevelopment ? getFallbackSupplier(slug) : null;

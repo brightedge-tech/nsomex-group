@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [persistSession]);
   const register = useCallback(async ({ role, name, email, company, country, phone, password }: RegisterInput) => {
     if (!name || !email || !company) return { ok: false, message: "Please complete all required fields." };
-    if (role === "guest") return { ok: false, message: "Choose a buyer or supplier account." };
+    if (role !== "buyer" && role !== "supplier") return { ok: false, message: "Choose a buyer or supplier account." };
     if (authService.isConfigured()) {
       if (!password) return { ok: false, message: "Password is required." };
       const result = await authService.signUp({ role, name, email, company, country, phone, password });
