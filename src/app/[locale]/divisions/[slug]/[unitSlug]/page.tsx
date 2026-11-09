@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDictionary } from "@/i18n/dictionaries";
 import { isLocale } from "@/i18n/config";
-import { divisions, getDivision } from "@/lib/site";
+import { getDivision } from "@/lib/site";
 import { getCapabilityOfferings } from "@/lib/capability-offerings";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
