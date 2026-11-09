@@ -159,9 +159,17 @@ CREATE TABLE public.cms_content_revisions (
   change_summary text
     CHECK (change_summary IS NULL OR char_length(change_summary) <= 1000),
   created_by uuid REFERENCES auth.users(id) ON DELETE SET NULL,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  UNIQUE (entity_type, entity_id, locale_code, revision_number)
+  created_at timestamptz NOT NULL DEFAULT now()
 );
+
+-- COALESCE makes the revision number unique even when locale_code is NULL.
+CREATE UNIQUE INDEX cms_content_revisions_entity_locale_number_uidx
+  ON public.cms_content_revisions (
+    entity_type,
+    entity_id,
+    COALESCE(locale_code, ''),
+    revision_number
+  );
 
 CREATE INDEX cms_content_revisions_entity_idx
   ON public.cms_content_revisions (entity_type, entity_id, revision_number DESC);
@@ -235,9 +243,18 @@ TO service_role;
 
 GRANT USAGE, SELECT ON SEQUENCE public.cms_audit_logs_id_seq TO service_role;
 
-CREATE POLICY "Admins can read their own admin profile"
+CREATE POLICY "Admins can read authorized admin profiles"
   ON public.cms_admin_profiles FOR SELECT TO authenticated
-  USING (user_id = auth.uid());
+  USING (
+    user_id = auth.uid()
+    OR EXISTS (
+      SELECT 1
+      FROM public.cms_role_assignments assignment
+      WHERE assignment.user_id = cms_admin_profiles.user_id
+        AND assignment.revoked_at IS NULL
+        AND public.cms_has_permission('admin.manage', assignment.division_id)
+    )
+  );
 
 CREATE POLICY "Users can read their own role assignments"
   ON public.cms_role_assignments FOR SELECT TO authenticated
