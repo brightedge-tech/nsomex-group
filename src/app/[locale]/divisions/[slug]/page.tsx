@@ -53,6 +53,7 @@ export default async function DivisionDetailPage({ params }: Props) {
             <Link className="focus-card focus-card-link" key={item.slug} href={`/${locale}/divisions/${slug}/${item.slug}`} aria-label={`${item.name[locale]} — ${t.exploreCapability}`}>
               <span className="division-number">{String(index + 1).padStart(2, "0")}</span>
               <h2>{item.name[locale]}</h2><p>{item.description[locale]}</p>
+              <span className="card-link">{t.viewDetails} <span aria-hidden="true">↗</span></span>
             </Link>
           ))}
         </div>
