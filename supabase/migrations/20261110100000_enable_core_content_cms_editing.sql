@@ -207,11 +207,14 @@ BEGIN
   END IF;
 
   row_snapshot := to_jsonb(NEW);
-  action_key := CASE
-    WHEN TG_OP = 'INSERT' THEN 'created'
-    WHEN COALESCE(NEW.is_active, true) = false AND COALESCE(OLD.is_active, true) = true THEN 'archived'
-    ELSE 'updated'
-  END;
+  IF TG_OP = 'INSERT' THEN
+    action_key := 'created';
+  ELSIF TG_TABLE_NAME <> 'content_translations'
+      AND NEW.is_active = false AND OLD.is_active = true THEN
+    action_key := 'archived';
+  ELSE
+    action_key := 'updated';
+  END IF;
 
   SELECT COALESCE(MAX(revision_number), 0) + 1 INTO revision_no
   FROM public.cms_content_revisions
