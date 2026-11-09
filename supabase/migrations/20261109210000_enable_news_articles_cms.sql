@@ -455,10 +455,17 @@ RETURNS trigger
 LANGUAGE plpgsql
 SET search_path = pg_catalog, public
 AS $function$
+DECLARE
+  target_article_id uuid;
 BEGIN
+  IF TG_OP = 'DELETE' THEN
+    target_article_id := OLD.article_id;
+  ELSE
+    target_article_id := NEW.article_id;
+  END IF;
   UPDATE public.articles SET updated_at = now()
-  WHERE id = COALESCE(NEW.article_id, OLD.article_id);
-  RETURN COALESCE(NEW, OLD);
+  WHERE id = target_article_id;
+  RETURN NULL;
 END;
 $function$;
 
