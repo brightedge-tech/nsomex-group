@@ -27,5 +27,5 @@ export default async function ProtectedAdminLayout({ children }: { children: Rea
     division: item.division_id ? divisionNames.get(item.division_id) ?? "Assigned division" : "Group-wide",
   }));
 
-  return <AdminShell email={user.email ?? profile.display_name} roles={roles}>{children}</AdminShell>;
+  return <AdminShell email={user.email ?? profile.display_name}>{children}</AdminShell>;
 }
