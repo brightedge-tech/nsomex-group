@@ -54,6 +54,7 @@ export function CoreContentWorkspace({ divisions }: Props) {
 
   function chooseKind(kind: CoreContentKind) {
     setForm(emptyForm(kind, kind === "division" ? "" : kind === "business_unit" ? divisionId : kind === "category" ? units[0]?.id ?? "" : categories[0]?.id ?? ""));
+    setAutoSlug(true);
     setMessage("");
   }
 
@@ -112,7 +113,7 @@ export function CoreContentWorkspace({ divisions }: Props) {
     <section className="cms-catalogue-panel">
       <div className="cms-catalogue-toolbar">
         <label>{fr ? "Division sélectionnée" : "Selected division"}
-          <select value={divisionId} onChange={event => { setDivisionId(event.target.value); setForm(emptyForm("business_unit", event.target.value)); setMessage(""); }}>
+          <select value={divisionId} onChange={event => { setDivisionId(event.target.value); setForm(emptyForm("business_unit", event.target.value)); setAutoSlug(true); setMessage(""); }}>
             {divisions.map(item => <option key={item.id} value={item.id}>{value(item.content_translations, locale, "name") || item.code}</option>)}
           </select>
         </label>
@@ -134,7 +135,7 @@ export function CoreContentWorkspace({ divisions }: Props) {
             {parentOptions.map(option => <option key={option.id} value={option.id}>{option.label}</option>)}
           </select>
         </label>}
-        {form.kind === "category" && <label>{fr ? "Sous-catégorie de (facultatif)" : "Subcategory of (optional)"}
+        {form.kind === "category" && !form.id && <label>{fr ? "Sous-catégorie de (facultatif)" : "Subcategory of (optional)"}
           <select value={form.parentCategoryId} onChange={event => setForm({ ...form, parentCategoryId: event.target.value })}>
             <option value="">{fr ? "Catégorie principale" : "Top-level category"}</option>
             {categories.filter(item => item.id !== form.id && item.business_unit_id === form.parentId).map(item => <option key={item.id} value={item.id}>{value(item.content_translations, locale, "name") || item.code}</option>)}
