@@ -6,7 +6,6 @@ import { divisions } from "@/lib/site";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MediaPlaceholder } from "@/components/media-placeholder";
-import { getDictionary } from "@/i18n/dictionaries";
 
 type Props = { params: Promise<{ locale: string }> };
 
