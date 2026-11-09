@@ -6,6 +6,7 @@ import { divisions } from "@/lib/site";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MediaPlaceholder } from "@/components/media-placeholder";
+import { divisionImages, stockImages } from "@/lib/media";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -17,7 +18,7 @@ export default async function HomePage({ params }: Props) {
   return (
     <main>
       <SiteHeader locale={locale} />
-      <section className="hero">
+      <section className="hero" style={{ backgroundImage: `linear-gradient(90deg, rgba(7,19,33,.97) 0%, rgba(7,19,33,.86) 48%, rgba(7,19,33,.56) 100%), url("${stockImages.corporate}")` }}>
         <div className="hero-grid" aria-hidden="true" />
         <div className="hero-content">
           <p className="eyebrow"><span className="eyebrow-line" /> {t.eyebrow}</p>
@@ -42,7 +43,7 @@ export default async function HomePage({ params }: Props) {
         </div>
       </section>
       <section className="section-wrap home-media-section">
-        <MediaPlaceholder label={getDictionary(locale).media.groupVisual} detail={getDictionary(locale).media.placeholderDetail} ratio="wide" />
+        <MediaPlaceholder label={getDictionary(locale).media.groupVisual} detail={locale === "fr" ? "Photo illustrative libre de droits — à remplacer par un visuel NSOMEX approuvé." : "Illustrative stock photo — replace with approved NSOMEX imagery when available."} ratio="wide" imageUrl={stockImages.corporate} />
       </section>
       <section className="divisions-section">
         <div className="section-wrap">
@@ -51,6 +52,7 @@ export default async function HomePage({ params }: Props) {
             {divisions.map((division) => (
               <article className="division-card" key={division.slug}>
                 <div className="division-card-top"><span className="division-number">{division.number}</span><span className="card-arrow" aria-hidden="true">↗</span></div>
+                <MediaPlaceholder className="home-division-media" label={`${division.name} / illustrative stock image`} detail={locale === "fr" ? "Image illustrative — pas une photo de projet NSOMEX." : "Illustrative stock image — not an NSOMEX project photograph."} ratio="landscape" imageUrl={divisionImages[division.slug]} />
                 <h3>{division.name}</h3><p>{division.summary[locale]}</p>
                 <ul>{division.focus.slice(0, 3).map((item) => <li key={item.slug}>{item.name[locale]}</li>)}</ul>
                 <Link className="card-link" href={`/${locale}/divisions/${division.slug}`}>{t.exploreDivision} <span aria-hidden="true">→</span></Link>
