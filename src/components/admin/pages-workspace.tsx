@@ -19,11 +19,11 @@ type Props = { pages: Page[]; divisions: Division[]; canManageGlobal: boolean };
 
 const emptyPage = {
   id: undefined as string | undefined, slug: "", templateKey: "standard", divisionId: "",
-  showInNavigation: false, navigation{t.order}: 0, enTitle: "", enSummary: "", frTitle: "", frSummary: "",
+  showInNavigation: false, navigationOrder: 0, enTitle: "", enSummary: "", frTitle: "", frSummary: "",
 };
 const emptySection = {
   id: undefined as string | undefined, pageId: "", sectionKey: "", sectionType: "text",
-  sort{t.order}: 0, enContent: '{\n  "heading": "",\n  "body": ""\n}', frContent: '{\n  "heading": "",\n  "body": ""\n}',
+  sortOrder: 0, enContent: '{\n  "heading": "",\n  "body": ""\n}', frContent: '{\n  "heading": "",\n  "body": ""\n}',
 };
 
 function translation<T extends Translation>(items: T[] | undefined, locale: string): T | undefined {
@@ -38,24 +38,24 @@ export function PagesWorkspace({ pages, divisions, canManageGlobal }: Props) {
     websitePages:"Pages du site", createPage:"＋ Créer une page", noPages:"Aucune page pour le moment. Créez la première lorsque vous êtes prêt.",
     editPage:"Modifier la page", newPage:"Créer une page", contentEditor:"ÉDITEUR DE CONTENU", slug:"Identifiant URL", template:"Clé du modèle",
     ownership:"Responsable du contenu", groupWide:"Page du groupe (super administrateur)", english:"Anglais", french:"Français",
-    pageTitle:"Titre de la page (anglais)", summary:"Résumé court (anglais)", pageTitleFr:"{t.pageTitleFr}", summaryFr:"{t.summaryFr}",
-    navigation{t.order}:"Ordre de navigation", showNavigation:"Afficher dans la navigation du site", savePage:"Enregistrer la page",
+    pageTitle:"Titre de la page (anglais)", summary:"Résumé court (anglais)", pageTitleFr:"Titre de la page (français)", summaryFr:"Résumé (français)",
+    navigationOrder:"Ordre de navigation", showNavigation:"Afficher dans la navigation du site", savePage:"Enregistrer la page",
     saving:"Enregistrement…", reusable:"CONTENU RÉUTILISABLE", sections:"Sections de la page", sectionCount:"sections",
     editSection:"Modifier la section", addSection:"Ajouter une section", sectionKey:"Clé de section", sectionType:"Type de section",
-    order:"Ordre", englishJson:"Contenu anglais (JSON)", frenchJson:"{t.frenchJson}", saveSection:"Enregistrer la section",
+    order:"Ordre", englishJson:"Contenu anglais (JSON)", frenchJson:"Contenu français (JSON)", saveSection:"Enregistrer la section",
     cancelSection:"Annuler la modification", workflow:"Cycle de publication", draft:"Brouillon", review:"Soumettre à la validation",
     publish:"Publier", archive:"Archiver", pageSaved:"Page enregistrée. Les deux versions linguistiques sont stockées.",
     sectionSaved:"Section enregistrée en anglais et en français.", pageStatus:"Statut de la page modifié :", sectionStatus:"Statut de la section modifié :",
   } : {
-    websitePages:"{t.websitePages}", createPage:"{t.createPage}", noPages:"{t.noPages}",
-    editPage:"Edit page", newPage:"Create a page", contentEditor:"{t.contentEditor}", slug:"{t.slug}", template:"{t.template}",
-    ownership:"{t.ownership}", groupWide:"{t.groupWide}", english:"English", french:"Français",
-    pageTitle:"{t.pageTitle}", summary:"{t.summary}", pageTitleFr:"Page title (French)", summaryFr:"Summary (French)",
-    navigation{t.order}:"{t.navigation{t.order}}", showNavigation:"{t.showNavigation}", savePage:"Save page",
-    saving:"Saving…", reusable:"{t.reusable}", sections:"{t.sections}", sectionCount:"sections",
-    editSection:"{t.editSection}", addSection:"{t.addSection}", sectionKey:"{t.sectionKey}", sectionType:"{t.sectionType}",
-    order:"{t.order}", englishJson:"{t.englishJson}", frenchJson:"French content (JSON)", saveSection:"Save section",
-    cancelSection:"{t.cancelSection}", workflow:"Page workflow", draft:"Save as draft", review:"Submit for review",
+    websitePages:"Website pages", createPage:"＋ Create page", noPages:"No pages yet. Create the first page when you are ready.",
+    editPage:"Edit page", newPage:"Create a page", contentEditor:"CONTENT EDITOR", slug:"URL slug", template:"Template key",
+    ownership:"Content ownership", groupWide:"Group-wide page (super admin)", english:"English", french:"Français",
+    pageTitle:"Page title (English)", summary:"Short summary (English)", pageTitleFr:"Page title (French)", summaryFr:"Summary (French)",
+    navigationOrder:"Navigation order", showNavigation:"Show in website navigation", savePage:"Save page",
+    saving:"Saving…", reusable:"REUSABLE CONTENT", sections:"Page sections", sectionCount:"sections",
+    editSection:"Edit section", addSection:"Add a section", sectionKey:"Section key", sectionType:"Section type",
+    order:"Order", englishJson:"English content (JSON)", frenchJson:"French content (JSON)", saveSection:"Save section",
+    cancelSection:"Cancel section edit", workflow:"Page workflow", draft:"Save as draft", review:"Submit for review",
     publish:"Publish page", archive:"Archive", pageSaved:"Page saved. Both language versions are stored.",
     sectionSaved:"Section saved in English and French.", pageStatus:"Page status changed to", sectionStatus:"Section status changed to",
   };
@@ -71,7 +71,7 @@ export function PagesWorkspace({ pages, divisions, canManageGlobal }: Props) {
     const fr = translation(page.page_translations, "fr");
     setPageForm({
       id: page.id, slug: page.slug, templateKey: page.template_key, divisionId: page.division_id ?? "",
-      showInNavigation: page.show_in_navigation, navigation{t.order}: page.navigation_order,
+      showInNavigation: page.show_in_navigation, navigationOrder: page.navigation_order,
       enTitle: en?.title ?? "", enSummary: en?.summary ?? "",
       frTitle: fr?.title ?? "", frSummary: fr?.summary ?? "",
     });
@@ -125,7 +125,7 @@ export function PagesWorkspace({ pages, divisions, canManageGlobal }: Props) {
     const fr = translation(section.page_section_translations, "fr")?.content ?? {};
     setSectionForm({
       id: section.id, pageId: pageForm.id ?? "", sectionKey: section.section_key,
-      sectionType: section.section_type, sort{t.order}: section.sort_order,
+      sectionType: section.section_type, sortOrder: section.sort_order,
       enContent: JSON.stringify(en, null, 2), frContent: JSON.stringify(fr, null, 2),
     });
   }
@@ -168,7 +168,7 @@ export function PagesWorkspace({ pages, divisions, canManageGlobal }: Props) {
           <label>{t.pageTitleFr}<input required maxLength={200} value={pageForm.frTitle} onChange={e=>setPageForm({...pageForm,frTitle:e.target.value})} /></label>
           <label>{t.summaryFr}<textarea rows={2} maxLength={600} value={pageForm.frSummary} onChange={e=>setPageForm({...pageForm,frSummary:e.target.value})} /></label>
           <div className="cms-editor-two">
-            <label>{t.navigation{t.order}}<input type="number" min={0} max={9999} value={pageForm.navigation{t.order}} onChange={e=>setPageForm({...pageForm,navigation{t.order}:Number(e.target.value)})} /></label>
+            <label>{t.navigationOrder}<input type="number" min={0} max={9999} value={pageForm.navigationOrder} onChange={e=>setPageForm({...pageForm,navigationOrder:Number(e.target.value)})} /></label>
             <label className="cms-editor-check"><input type="checkbox" checked={pageForm.showInNavigation} onChange={e=>setPageForm({...pageForm,showInNavigation:e.target.checked})} /> {t.showNavigation}</label>
           </div>
           <button className="cms-login-submit" type="submit" disabled={busy}>{busy ? t.saving : t.savePage}</button>
@@ -185,12 +185,12 @@ export function PagesWorkspace({ pages, divisions, canManageGlobal }: Props) {
             </div>
           </div>)}
           <form onSubmit={submitSection} className="cms-editor-form cms-section-form">
-            <h3>{sectionForm.id ? "{t.editSection}" : "{t.addSection}"}</h3>
+            <h3>{sectionForm.id ? t.editSection : t.addSection}</h3>
             <div className="cms-editor-two">
               <label>{t.sectionKey}<input required pattern="[a-z0-9]+(-[a-z0-9]+)*" value={sectionForm.sectionKey} onChange={e=>setSectionForm({...sectionForm,sectionKey:e.target.value})} placeholder="intro" /></label>
               <label>{t.sectionType}<input required pattern="[a-z0-9]+(-[a-z0-9]+)*" value={sectionForm.sectionType} onChange={e=>setSectionForm({...sectionForm,sectionType:e.target.value})} placeholder="text" /></label>
             </div>
-            <label>{t.order}<input type="number" min={0} max={9999} value={sectionForm.sort{t.order}} onChange={e=>setSectionForm({...sectionForm,sort{t.order}:Number(e.target.value)})} /></label>
+            <label>{t.order}<input type="number" min={0} max={9999} value={sectionForm.sortOrder} onChange={e=>setSectionForm({...sectionForm,sortOrder:Number(e.target.value)})} /></label>
             <div className="cms-editor-two">
               <label>{t.englishJson}<textarea required rows={7} value={sectionForm.enContent} onChange={e=>setSectionForm({...sectionForm,enContent:e.target.value})} /></label>
               <label>{t.frenchJson}<textarea required rows={7} value={sectionForm.frContent} onChange={e=>setSectionForm({...sectionForm,frContent:e.target.value})} /></label>
