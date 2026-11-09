@@ -194,3 +194,6 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
   .directory-card { min-height: 230px; padding: 25px; }
   .focus-card { min-height: 180px; }
 }
+
+.section-note { max-width: 760px; border-left: 2px solid var(--gold); padding: 12px 0 12px 25px; }
+.section-note p { color: #66727d; font-size: 14px; line-height: 1.9; margin: 15px 0 0; }
