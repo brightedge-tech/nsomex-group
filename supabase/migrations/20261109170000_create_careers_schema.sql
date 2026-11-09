@@ -84,7 +84,7 @@ CREATE TABLE public.job_applications (
   privacy_notice_version text NOT NULL
     CHECK (char_length(btrim(privacy_notice_version)) BETWEEN 1 AND 40),
   submitted_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
 );
 
 CREATE INDEX job_openings_public_listing_idx

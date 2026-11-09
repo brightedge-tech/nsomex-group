@@ -35,6 +35,7 @@ create table public.business_units (
   is_active boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
+  constraint business_units_id_division_key unique (id, division_id),
   constraint business_units_division_code_key unique (division_id, code),
   constraint business_units_division_slug_key unique (division_id, slug)
 );
