@@ -81,6 +81,11 @@ export function ArticlesWorkspace({articles,categories,divisions,media,canManage
   if(!result.ok){setMessage(result.error);return;}
   setCategoryForm(emptyCategory);setMessage(t.categorySaved);router.refresh();
  }
+ function editCategory(category:Category){
+  const en=translation(category.article_category_translations,"en"),frRow=translation(category.article_category_translations,"fr");
+  setCategoryForm({id:category.id,slug:category.slug,enName:en?.name??"",frName:frRow?.name??"",enDescription:en?.description??"",frDescription:frRow?.description??""});
+  setMessage("");
+ }
  async function categoryStatus(id:string,next:"draft"|"published"|"archived"){
   setBusy(true);setMessage("");
   const result=await changeArticleCategoryStatus(id,next);setBusy(false);
@@ -159,7 +164,7 @@ export function ArticlesWorkspace({articles,categories,divisions,media,canManage
      {!categories.length&&<p className="cms-pages-empty">{t.noCategories}</p>}
      {categories.map(category=><div className="cms-media-row" key={category.id}>
       <div><strong>{translation(category.article_category_translations,fr?"fr":"en")?.name??category.slug}</strong><span>{category.slug} · {category.status}</span></div>
-      {category.status==="published"?<button type="button" disabled={busy} onClick={()=>categoryStatus(category.id,"draft")}>{t.backDraft}</button>:<button type="button" disabled={busy} onClick={()=>categoryStatus(category.id,"published")}>{t.publish}</button>}
+      <div className="cms-project-actions"><button type="button" disabled={busy} onClick={()=>editCategory(category)}>{t.editCategory}</button>{category.status==="published"?<button type="button" disabled={busy} onClick={()=>categoryStatus(category.id,"draft")}>{t.backDraft}</button>:<button type="button" disabled={busy} onClick={()=>categoryStatus(category.id,"published")}>{t.publish}</button>}</div>
      </div>)}
     </div>
    </div>:<p className="cms-pages-empty">{t.groupOnly}</p>}
