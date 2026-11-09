@@ -216,7 +216,7 @@ BEGIN
     END;
   ELSE
     -- Any edit to a published page returns it to draft until it is reviewed and republished.
-    IF OLD.status = 'published' AND (
+    IF OLD.status IN ('published', 'review') AND (
       NEW.slug IS DISTINCT FROM OLD.slug
       OR NEW.template_key IS DISTINCT FROM OLD.template_key
       OR NEW.division_id IS DISTINCT FROM OLD.division_id
@@ -463,7 +463,7 @@ BEGIN
 
   UPDATE public.pages
   SET status = 'draft', published_at = NULL
-  WHERE id = parent_page_id AND status = 'published';
+  WHERE id = parent_page_id AND status IN ('published', 'review');
 
   RETURN NEW;
 END;
