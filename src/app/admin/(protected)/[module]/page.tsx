@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import { PagesWorkspace } from "@/components/admin/pages-workspace";
+import { CoreContentWorkspace } from "@/components/admin/core-content-workspace";
 import { createClient } from "@/lib/supabase/server";
 
 const moduleInfo: Record<string,{title:string;description:string}> = {
+  catalogue:{title:"Business structure",description:"Manage divisions, business units, categories, subcategories and services in English and French."},
   pages:{title:"Pages & sections",description:"Create and manage bilingual website pages and reusable content sections."},
   projects:{title:"Projects portfolio",description:"Approved project records, translations and associated media will be managed here."},
   articles:{title:"News & insights",description:"News, insights and announcements will be drafted, reviewed and published here."},
@@ -26,6 +28,21 @@ export default async function AdminModulePage({params}:{params:Promise<{module:s
   const {module}=await params;
   const item=moduleInfo[module];
   if(!item) notFound();
+
+  if(module === "catalogue") {
+    const supabase = await createClient();
+    if (!supabase) notFound();
+    const [{ data: { user } }] = await Promise.all([supabase.auth.getUser()]);
+    if (!user) notFound();
+    const { data: divisions } = await supabase
+      .from("divisions")
+      .select("id,code,slug,is_active,sort_order,content_translations(locale_code,field_name,content),business_units(id,division_id,code,slug,is_active,sort_order,content_translations(locale_code,field_name,content),categories(id,business_unit_id,parent_id,code,slug,is_active,sort_order,content_translations(locale_code,field_name,content),services(id,category_id,code,slug,is_active,sort_order,content_translations(locale_code,field_name,content)))")
+      .order("sort_order");
+    return <section>
+      <div className="cms-page-heading"><div><p className="cms-eyebrow">CMS MODULE</p><h1>{item.title}</h1><p>{item.description}</p></div></div>
+      <CoreContentWorkspace divisions={(divisions ?? []) as never} />
+    </section>;
+  }
 
   if(module === "pages") {
     const supabase = await createClient();

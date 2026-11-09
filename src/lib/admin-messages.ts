@@ -1,7 +1,7 @@
 export type AdminLocale = "en" | "fr";
 export const adminMessages = {
   en: {
-    brand:"NSOMEX GROUP", workspace:"CONTENT MANAGEMENT", dashboard:"Dashboard", overview:"Overview",
+    brand:"NSOMEX GROUP", workspace:"CONTENT MANAGEMENT", dashboard:"Dashboard", catalogue:"Business structure", overview:"Overview",
     welcome:"Your workspace, connected.", welcomeCopy:"Manage the group's website content, review work and publishing access from one secure workspace.",
     access:"Your access", assignedRoles:"Assigned roles", noDivision:"Group-wide", modules:"CMS modules",
     modulesCopy:"These workspaces will become available as each content editor is connected to the database.",
@@ -18,7 +18,7 @@ export const adminMessages = {
     secureNote:"Protected administrator workspace", noRoles:"No active roles were found for this account.",
   },
   fr: {
-    brand:"NSOMEX GROUP", workspace:"GESTION DE CONTENU", dashboard:"Tableau de bord", overview:"Aperçu",
+    brand:"NSOMEX GROUP", workspace:"GESTION DE CONTENU", dashboard:"Tableau de bord", catalogue:"Structure de l’entreprise", overview:"Aperçu",
     welcome:"Votre espace de travail, connecté.", welcomeCopy:"Gérez le contenu du site du groupe, les validations et les droits de publication depuis un espace sécurisé.",
     access:"Vos accès", assignedRoles:"Rôles attribués", noDivision:"Tout le groupe", modules:"Modules du CMS",
     modulesCopy:"Ces espaces seront activés au fur et à mesure de la connexion des éditeurs de contenu à la base de données.",
