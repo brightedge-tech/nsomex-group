@@ -95,8 +95,11 @@ CREATE POLICY "Authorized CMS users can read project media links"
 CREATE POLICY "Authorized CMS users can manage project media links"
   ON public.project_media FOR INSERT TO authenticated
   WITH CHECK (EXISTS (
-    SELECT 1 FROM public.projects p
+    SELECT 1
+    FROM public.projects p
+    JOIN public.media_assets ma ON ma.id = media_asset_id
     WHERE p.id = project_id
+      AND ma.division_id = p.division_id
       AND public.cms_has_permission('content.edit', p.division_id)
   ));
 
@@ -108,8 +111,11 @@ CREATE POLICY "Authorized CMS users can update project media links"
       AND public.cms_has_permission('content.edit', p.division_id)
   ))
   WITH CHECK (EXISTS (
-    SELECT 1 FROM public.projects p
+    SELECT 1
+    FROM public.projects p
+    JOIN public.media_assets ma ON ma.id = media_asset_id
     WHERE p.id = project_id
+      AND ma.division_id = p.division_id
       AND public.cms_has_permission('content.edit', p.division_id)
   ));
 
