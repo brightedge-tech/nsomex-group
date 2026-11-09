@@ -2,6 +2,7 @@ import type { Locale } from "./config";
 
 const dictionaries = {
   en: {
+    media: { groupVisual: "NSOMEX GROUP / CORPORATE IMAGE", divisionVisual: "DIVISION / INDUSTRY IMAGE", capabilityVisual: "CAPABILITY / PROJECT IMAGE", placeholderDetail: "Reserved for an approved company photograph" },
     navigation: { about: "About", divisions: "Divisions", projects: "Projects", insights: "Insights", contact: "Contact", connect: "Let's connect" },
     home: {
       eyebrow: "A GLOBAL BUSINESS GROUP", headlineFirst: "Connecting global business", headlineSecond: "to global opportunity.",
@@ -25,6 +26,7 @@ const dictionaries = {
     },
   },
   fr: {
+    media: { groupVisual: "NSOMEX GROUP / IMAGE INSTITUTIONNELLE", divisionVisual: "DIVISION / IMAGE SECTORIELLE", capabilityVisual: "COMPÉTENCE / IMAGE DE PROJET", placeholderDetail: "Emplacement réservé à une photographie approuvée" },
     navigation: { about: "À propos", divisions: "Nos divisions", projects: "Projets", insights: "Actualités", contact: "Contact", connect: "Parlons ensemble" },
     home: {
       eyebrow: "UN GROUPE D'AFFAIRES INTERNATIONAL", headlineFirst: "Connecter les entreprises", headlineSecond: "aux opportunités mondiales.",
