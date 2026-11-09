@@ -317,3 +317,17 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
   .contact-section { padding-top: 65px; padding-bottom: 75px; }
   .contact-method { padding: 24px; }
 }
+
+
+/* Corporate, division and capability image placement */
+.home-media-section { padding-top: 0; padding-bottom: 90px; }
+.directory-card-media { width: 100%; margin-top: 18px; }
+.directory-card-media .media-placeholder-copy { padding: 16px; }
+.directory-card-media .media-placeholder-label { font-size: 8px; }
+.directory-card-media .media-placeholder-detail { font-size: 10px; }
+.division-detail-media { padding-top: 64px; }
+.capability-media { padding-top: 64px; }
+@media (max-width: 720px) {
+  .home-media-section { padding-bottom: 65px; }
+  .division-detail-media, .capability-media { padding-top: 42px; }
+}
