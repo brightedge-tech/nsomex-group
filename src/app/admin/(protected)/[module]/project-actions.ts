@@ -66,12 +66,14 @@ export async function saveProject(input: ProjectInput): Promise<Result> {
     if(error || !data) return {ok:false,error:error?.message ?? "Unable to create the project."};
     id=data.id;
   }
+  if (!id) return {ok:false,error:"Unable to identify the saved project."};
+  const savedId=id;
   const {error:translationError}=await supabase.from("project_translations").upsert([
-    {project_id:id,locale_code:"en",title:enTitle,summary:clean(input.enSummary,600)||null,description:clean(input.enDescription,12000)||null},
-    {project_id:id,locale_code:"fr",title:frTitle,summary:clean(input.frSummary,600)||null,description:clean(input.frDescription,12000)||null},
+    {project_id:savedId,locale_code:"en",title:enTitle,summary:clean(input.enSummary,600)||null,description:clean(input.enDescription,12000)||null},
+    {project_id:savedId,locale_code:"fr",title:frTitle,summary:clean(input.frSummary,600)||null,description:clean(input.frDescription,12000)||null},
   ],{onConflict:"project_id,locale_code"});
   if(translationError) return {ok:false,error:translationError.message};
-  return {ok:true,id};
+  return {ok:true,id:savedId};
 }
 
 export async function changeProjectStatus(projectId: string, divisionId: string, status:"draft"|"review"|"published"|"archived"): Promise<Result> {
