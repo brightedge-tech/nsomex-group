@@ -363,3 +363,22 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
   .contact-field-full { grid-column: auto; }
   .contact-form-actions { align-items: flex-start; flex-direction: column; gap: 8px; }
 }
+
+
+/* Real stock photography used as temporary illustrative website media */
+.hero { background-size: cover; background-position: center 48%; }
+.media-photo { background-size: cover; background-position: center; border-color: rgba(198,166,106,.24); }
+.media-photo::before, .media-photo::after, .media-photo .media-placeholder-frame, .media-photo .media-placeholder-mark { display: none; }
+.media-photo .media-placeholder-copy {
+  width: 100%;
+  background: linear-gradient(0deg, rgba(7,19,33,.62), transparent);
+}
+.home-division-media { margin: 18px 0 0; aspect-ratio: 16 / 9; }
+.home-division-media .media-placeholder-copy { padding: 13px 14px; }
+.home-division-media .media-placeholder-label { font-size: 8px; letter-spacing: .12em; }
+.home-division-media .media-placeholder-detail { font-size: 9px; }
+.division-card h3 { margin-top: 22px; }
+@media (max-width: 720px) {
+  .division-card { min-height: 390px; }
+  .home-division-media { margin-top: 16px; }
+}
