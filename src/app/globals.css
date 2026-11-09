@@ -223,3 +223,17 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
   .capability-cta { padding: 28px; display: block; }
   .capability-cta .button { margin-top: 18px; }
 }
+
+
+/* Specific service areas for each capability */
+.offerings-section { margin: 0 0 76px; }
+.offerings-heading { display: flex; justify-content: space-between; align-items: end; gap: 30px; margin-bottom: 22px; }
+.offerings-heading .eyebrow { margin: 0 0 10px; }
+.offerings-heading h2 { margin: 0; font: 600 clamp(28px, 3.2vw, 40px) Arial, Helvetica, sans-serif; letter-spacing: -.045em; }
+.offerings-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid #d8d6d0; }
+.offerings-list li { display: grid; grid-template-columns: 64px 1fr; align-items: center; gap: 18px; min-height: 82px; padding: 18px 8px; border-bottom: 1px solid #d8d6d0; color: var(--ink); font-size: 15px; line-height: 1.6; }
+@media (max-width: 720px) {
+  .offerings-section { margin-bottom: 58px; }
+  .offerings-heading { display: block; }
+  .offerings-list li { grid-template-columns: 42px 1fr; gap: 12px; min-height: 72px; font-size: 13px; }
+}
