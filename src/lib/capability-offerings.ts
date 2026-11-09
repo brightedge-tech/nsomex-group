@@ -25,9 +25,17 @@ const capabilityOfferings: Record<string, Record<Locale, string[]>> = {
     en: ["Digital strategy and technology advisory", "Business process mapping and automation", "IT operating models and transformation roadmaps"],
     fr: ["Stratégie numérique et conseil technologique", "Cartographie et automatisation des processus métier", "Modèles opérationnels IT et feuilles de route de transformation"],
   },
-  construction: {
-    en: ["Residential, commercial, and industrial construction", "Renovation, fit-out, and building improvement works", "Construction planning and site coordination"],
-    fr: ["Construction résidentielle, commerciale et industrielle", "Rénovation, aménagement et amélioration de bâtiments", "Planification des travaux et coordination de chantier"],
+  "residential-construction": {
+    en: ["Custom home design and build", "Single-family homes, duplexes, and villas", "Apartment buildings and multi-unit housing", "Home extensions and residential renovations"],
+    fr: ["Conception et construction de maisons sur mesure", "Maisons individuelles, duplex et villas", "Immeubles d'appartements et logements collectifs", "Extensions et rénovations résidentielles"],
+  },
+  "commercial-construction": {
+    en: ["Office buildings and business premises", "Retail, showroom, and hospitality spaces", "Commercial fit-out and refurbishment"],
+    fr: ["Immeubles de bureaux et locaux professionnels", "Espaces commerciaux, showrooms et hôtellerie", "Aménagement et rénovation de locaux commerciaux"],
+  },
+  "industrial-construction": {
+    en: ["Warehouses and distribution facilities", "Workshops and production buildings", "Industrial site development and upgrades"],
+    fr: ["Entrepôts et plateformes de distribution", "Ateliers et bâtiments de production", "Aménagement et modernisation de sites industriels"],
   },
   "civil-engineering": {
     en: ["Roads, access routes, and transport infrastructure", "Drainage, water management, and civil works", "Site development and infrastructure coordination"],

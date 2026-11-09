@@ -20,3 +20,12 @@ export const divisionImages: Record<string, string> = {
   "renewable-energy": stockImages.renewableEnergy,
   "global-business": stockImages.globalBusiness,
 };
+
+export const capabilityImages: Record<string, string> = {
+  // Umair Ali Asad — https://unsplash.com/photos/modern-house-with-large-windows-and-sunroom-g_B92WafICI
+  "residential-construction": "https://images.unsplash.com/photo-1761158497156-c8f202a07b42?auto=format&fit=crop&fm=jpg&ixid=NHwxMjA3fDA%3D&ixlib=rb-4.1.0&q=60&w=3000",
+  // Linus Belanger — https://unsplash.com/photos/modern-office-building-with-glass-and-brick-facade-z-XlxM2vAPY
+  "commercial-construction": "https://images.unsplash.com/photo-1778961419928-2968ddd57c05?auto=format&fit=crop&fm=jpg&ixid=NHwxMjA3fDA%3D&ixlib=rb-4.1.0&q=60&w=3000",
+  // strelenka — https://unsplash.com/photos/industrial-building-with-large-ventilation-units-outside-1dbmcxAeINM
+  "industrial-construction": "https://images.unsplash.com/photo-1761396716215-9ccb2a7eda9d?auto=format&fit=crop&fm=jpg&ixid=NHwxMjA3fDA%3D&ixlib=rb-4.1.0&q=60&w=3000",
+};

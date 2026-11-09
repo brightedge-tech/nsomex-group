@@ -8,7 +8,8 @@ import { getCapabilityOfferings } from "@/lib/capability-offerings";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MediaPlaceholder } from "@/components/media-placeholder";
-import { divisionImages } from "@/lib/media";
+import { divisionImages, capabilityImages } from "@/lib/media";
+import { toServiceSlug } from "@/lib/service-routes";
 
 type Props = { params: Promise<{ locale: string; slug: string; unitSlug: string }> };
 
@@ -45,6 +46,7 @@ export default async function CapabilityDetailPage({ params }: Props) {
   if (!division || !capability) notFound();
   const t = getDictionary(locale).divisions;
   const offerings = getCapabilityOfferings(unitSlug, locale);
+  const capabilityImage = capabilityImages[unitSlug] ?? divisionImages[slug];
 
   return (
     <main>
@@ -59,7 +61,7 @@ export default async function CapabilityDetailPage({ params }: Props) {
       </section>
 
       <section className="section-wrap capability-media">
-        <MediaPlaceholder label={`${capability.name[locale]} / ${getDictionary(locale).media.capabilityVisual}`} detail={locale === "fr" ? "Image illustrative — pas une photo de projet NSOMEX." : "Illustrative stock image — not an NSOMEX project photograph."} ratio="wide" imageUrl={divisionImages[slug]} />
+        <MediaPlaceholder label={`${capability.name[locale]} / ${getDictionary(locale).media.capabilityVisual}`} detail={locale === "fr" ? "Image illustrative — pas une photo de projet NSOMEX." : "Illustrative stock image — not an NSOMEX project photograph."} ratio="wide" imageUrl={capabilityImage} />
       </section>
       <section className="section-wrap capability-content">
         <div className="capability-intro">
@@ -73,15 +75,31 @@ export default async function CapabilityDetailPage({ params }: Props) {
             <p className="eyebrow dark-eyebrow">{t.capabilityEyebrow}</p>
             <h2 id="offerings-heading">{t.offerings}</h2>
           </div>
-          <ul className="offerings-list">
+          <div className="service-card-grid">
             {offerings.map((offering, index) => (
-              <li key={offering}>
+              <Link className="service-card" key={offering} href={`/${locale}/divisions/${slug}/${unitSlug}/${toServiceSlug(getCapabilityOfferings(unitSlug, "en")[index])}`}>
                 <span className="division-number">{String(index + 1).padStart(2, "0")}</span>
-                <span>{offering}</span>
-              </li>
+                <h3>{offering}</h3>
+                <span className="service-card-link">{t.viewDetails} <span aria-hidden="true">↗</span></span>
+              </Link>
             ))}
-          </ul>
+          </div>
         </section>
+
+        {unitSlug === "software" ? (
+          <aside className="product-example">
+            <div>
+              <p className="eyebrow dark-eyebrow">{t.productExampleEyebrow}</p>
+              <h2>{t.productExampleTitle}</h2>
+              <p>{t.productExampleText}</p>
+              <span className="product-example-status">{t.productExampleStatus}</span>
+            </div>
+            <div className="product-example-visual" aria-hidden="true">
+              <span className="product-example-mark">N</span>
+              <span className="product-example-caption">CONNECT / DIGITAL SERVICES</span>
+            </div>
+          </aside>
+        ) : null}
 
         <div className="capability-panels">
           <article className="capability-panel">
