@@ -199,6 +199,21 @@ CREATE POLICY "Authorized CMS users can read their private media"
     AND public.cms_has_permission('media.manage', public.cms_storage_division_id(name))
   );
 
+CREATE OR REPLACE FUNCTION public.cms_touch_media_asset_updated_at()
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path = pg_catalog
+AS $function$
+BEGIN
+  NEW.updated_at := now();
+  RETURN NEW;
+END;
+$function$;
+
+CREATE TRIGGER cms_media_assets_updated_at
+  BEFORE UPDATE ON public.media_assets
+  FOR EACH ROW EXECUTE FUNCTION public.cms_touch_media_asset_updated_at();
+
 CREATE OR REPLACE FUNCTION public.cms_guard_project_status()
 RETURNS trigger
 LANGUAGE plpgsql
