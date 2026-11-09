@@ -32,24 +32,29 @@ export function ContactEnquiryForm({ locale }: { locale: Locale }) {
     setSubmitting(true);
     setStatus("idle");
 
-    const { error } = await supabase.from("contact_enquiries").insert({
-      name: String(data.get("name") ?? "").trim(),
-      email: String(data.get("email") ?? "").trim(),
-      organization: String(data.get("organization") ?? "").trim() || null,
-      country: String(data.get("country") ?? "").trim() || null,
-      enquiry_type: String(data.get("enquiry_type") ?? "general"),
-      message: String(data.get("message") ?? "").trim(),
-      locale,
-    });
+    try {
+      const { error } = await supabase.from("contact_enquiries").insert({
+        name: String(data.get("name") ?? "").trim(),
+        email: String(data.get("email") ?? "").trim(),
+        organization: String(data.get("organization") ?? "").trim() || null,
+        country: String(data.get("country") ?? "").trim() || null,
+        enquiry_type: String(data.get("enquiry_type") ?? "general"),
+        message: String(data.get("message") ?? "").trim(),
+        locale,
+      });
 
-    setSubmitting(false);
-    if (error) {
+      if (error) {
+        setStatus("error");
+        return;
+      }
+
+      formRef.current?.reset();
+      setStatus("success");
+    } catch {
       setStatus("error");
-      return;
+    } finally {
+      setSubmitting(false);
     }
-
-    formRef.current?.reset();
-    setStatus("success");
   }
 
   return (
