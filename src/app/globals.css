@@ -432,3 +432,8 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
   .service-detail-panel { padding: 27px; }
   .product-example { padding: 27px; margin-bottom: 55px; }
 }
+
+.focus-card-link .card-link { display: inline-block; margin-top: 22px; color: #8c7040; font-size: 10px; font-weight: 700; }
+.focus-card-link .card-link span { margin-left: 7px; }
+.focus-card-link { border-top: 2px solid transparent; }
+.focus-card-link:hover { border-top-color: var(--gold); }
