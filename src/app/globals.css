@@ -44,7 +44,7 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
   display: flex; flex-direction: column; gap: 1px;
   font: 800 17px Arial, Helvetica, sans-serif; letter-spacing: .16em;
 }
-.brand-name span { color: var(--gold); font: 600 8px "DM Sans", sans-serif; letter-spacing: .42em; }
+.brand-name span { color: var(--gold); font: 600 8px Arial, Helvetica, sans-serif; letter-spacing: .42em; }
 .desktop-nav { display: flex; align-items: center; gap: 36px; }
 .desktop-nav a { color: #c5ccd3; font-size: 12px; transition: color .2s ease; }
 .desktop-nav a:hover { color: var(--gold-light); }
@@ -164,4 +164,33 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
+
+/* Localized navigation and content directory */
+.header-actions { display: flex; align-items: center; gap: 14px; }
+.language-switch { color: var(--gold-light); font-size: 10px; font-weight: 700; letter-spacing: .12em; padding: 8px; }
+.page-hero { background: var(--navy); color: var(--white); padding: 105px 0 100px; }
+.page-hero h1 { max-width: 850px; margin: 0 0 22px; font: 600 clamp(42px, 5.5vw, 70px) Arial, Helvetica, sans-serif; letter-spacing: -.055em; line-height: 1.12; }
+.page-hero > .section-wrap > p:last-child { max-width: 700px; color: #b6c0ca; font-size: 15px; line-height: 1.9; }
+.back-link { display: inline-block; margin-bottom: 42px; color: var(--gold-light); font-size: 12px; }
+.directory-section { padding-top: 88px; padding-bottom: 100px; }
+.directory-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid #d8d6d0; border-left: 1px solid #d8d6d0; }
+.directory-card { min-height: 270px; padding: 32px; border-right: 1px solid #d8d6d0; border-bottom: 1px solid #d8d6d0; display: flex; flex-direction: column; }
+.directory-card h2, .focus-card h2 { font: 600 25px Arial, Helvetica, sans-serif; letter-spacing: -.04em; margin: 28px 0 12px; }
+.directory-card p, .focus-card p { color: #66727d; font-size: 13px; line-height: 1.85; margin: 0 0 25px; }
+.directory-card .card-link { color: #8c7040; }
+.focus-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: #d8d6d0; border: 1px solid #d8d6d0; margin-top: 25px; }
+.focus-card { min-height: 220px; background: var(--paper); padding: 28px; }
+.focus-card h2 { font-size: 19px; margin-top: 22px; }
+.focus-card p { font-size: 12px; margin-bottom: 0; }
+.page-contact { margin-top: 35px; }
+@media (max-width: 1050px) { .focus-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 720px) {
+  .header-actions { gap: 5px; }
+  .language-switch { padding: 6px; }
+  .page-hero { padding: 78px 0 72px; }
+  .directory-section { padding-top: 65px; padding-bottom: 72px; }
+  .directory-grid, .focus-grid { grid-template-columns: 1fr; }
+  .directory-card { min-height: 230px; padding: 25px; }
+  .focus-card { min-height: 180px; }
 }
