@@ -8,6 +8,7 @@ import { getCapabilityOfferings } from "@/lib/capability-offerings";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MediaPlaceholder } from "@/components/media-placeholder";
+import { divisionImages } from "@/lib/media";
 
 type Props = { params: Promise<{ locale: string; slug: string; unitSlug: string }> };
 
@@ -58,7 +59,7 @@ export default async function CapabilityDetailPage({ params }: Props) {
       </section>
 
       <section className="section-wrap capability-media">
-        <MediaPlaceholder label={`${capability.name[locale]} / ${getDictionary(locale).media.capabilityVisual}`} detail={getDictionary(locale).media.placeholderDetail} ratio="wide" />
+        <MediaPlaceholder label={`${capability.name[locale]} / ${getDictionary(locale).media.capabilityVisual}`} detail={locale === "fr" ? "Image illustrative — pas une photo de projet NSOMEX." : "Illustrative stock image — not an NSOMEX project photograph."} ratio="wide" imageUrl={divisionImages[slug]} />
       </section>
       <section className="section-wrap capability-content">
         <div className="capability-intro">

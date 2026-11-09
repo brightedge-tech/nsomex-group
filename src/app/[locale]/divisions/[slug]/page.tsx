@@ -7,6 +7,7 @@ import { divisions, getDivision } from "@/lib/site";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MediaPlaceholder } from "@/components/media-placeholder";
+import { divisionImages } from "@/lib/media";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -43,7 +44,7 @@ export default async function DivisionDetailPage({ params }: Props) {
         <h1>{division.name}</h1><p>{division.overview[locale]}</p>
       </div></section>
       <section className="division-detail-media section-wrap">
-        <MediaPlaceholder label={`${division.name} / ${getDictionary(locale).media.divisionVisual}`} detail={getDictionary(locale).media.placeholderDetail} ratio="wide" />
+        <MediaPlaceholder label={`${division.name} / ${getDictionary(locale).media.divisionVisual}`} detail={locale === "fr" ? "Image illustrative — pas une photo de projet NSOMEX." : "Illustrative stock image — not an NSOMEX project photograph."} ratio="wide" imageUrl={divisionImages[slug]} />
       </section>
       <section className="directory-section section-wrap">
         <p className="eyebrow dark-eyebrow">{t.focus}</p>
