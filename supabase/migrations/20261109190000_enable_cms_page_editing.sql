@@ -377,12 +377,18 @@ BEGIN
 
   IF TG_OP = 'INSERT' THEN
     audit_action := 'created';
-  ELSIF TG_TABLE_NAME IN ('pages', 'page_sections')
-    AND OLD.status IS DISTINCT FROM NEW.status THEN
+  ELSIF TG_TABLE_NAME = 'pages' AND OLD.status IS DISTINCT FROM NEW.status THEN
     audit_action := CASE NEW.status
       WHEN 'published' THEN 'published'
       WHEN 'archived' THEN 'archived'
       WHEN 'review' THEN 'submitted_for_review'
+      WHEN 'draft' THEN 'unpublished'
+      ELSE 'updated'
+    END;
+  ELSIF TG_TABLE_NAME = 'page_sections' AND OLD.status IS DISTINCT FROM NEW.status THEN
+    audit_action := CASE NEW.status
+      WHEN 'published' THEN 'published'
+      WHEN 'archived' THEN 'archived'
       WHEN 'draft' THEN 'unpublished'
       ELSE 'updated'
     END;
