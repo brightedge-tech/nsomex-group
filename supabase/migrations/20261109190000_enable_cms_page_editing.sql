@@ -214,15 +214,29 @@ BEGIN
       WHEN 'archived' THEN 'content.archive'
       ELSE 'content.create'
     END;
-  ELSIF OLD.status IS DISTINCT FROM NEW.status THEN
-    required_permission := CASE NEW.status
-      WHEN 'published' THEN 'content.publish'
-      WHEN 'review' THEN 'content.submit_review'
-      WHEN 'archived' THEN 'content.archive'
-      ELSE 'content.edit'
-    END;
   ELSE
-    required_permission := 'content.edit';
+    -- Any edit to a published page returns it to draft until it is reviewed and republished.
+    IF OLD.status = 'published' AND (
+      NEW.slug IS DISTINCT FROM OLD.slug
+      OR NEW.template_key IS DISTINCT FROM OLD.template_key
+      OR NEW.division_id IS DISTINCT FROM OLD.division_id
+      OR NEW.show_in_navigation IS DISTINCT FROM OLD.show_in_navigation
+      OR NEW.navigation_order IS DISTINCT FROM OLD.navigation_order
+    ) THEN
+      NEW.status := 'draft';
+      NEW.published_at := NULL;
+    END IF;
+
+    IF OLD.status IS DISTINCT FROM NEW.status THEN
+      required_permission := CASE NEW.status
+        WHEN 'published' THEN 'content.publish'
+        WHEN 'review' THEN 'content.submit_review'
+        WHEN 'archived' THEN 'content.archive'
+        ELSE 'content.edit'
+      END;
+    ELSE
+      required_permission := 'content.edit';
+    END IF;
   END IF;
 
   IF NOT public.cms_has_permission(required_permission, NEW.division_id) THEN
@@ -377,21 +391,25 @@ BEGIN
 
   IF TG_OP = 'INSERT' THEN
     audit_action := 'created';
-  ELSIF TG_TABLE_NAME = 'pages' AND OLD.status IS DISTINCT FROM NEW.status THEN
-    audit_action := CASE NEW.status
-      WHEN 'published' THEN 'published'
-      WHEN 'archived' THEN 'archived'
-      WHEN 'review' THEN 'submitted_for_review'
-      WHEN 'draft' THEN 'unpublished'
-      ELSE 'updated'
-    END;
-  ELSIF TG_TABLE_NAME = 'page_sections' AND OLD.status IS DISTINCT FROM NEW.status THEN
-    audit_action := CASE NEW.status
-      WHEN 'published' THEN 'published'
-      WHEN 'archived' THEN 'archived'
-      WHEN 'draft' THEN 'unpublished'
-      ELSE 'updated'
-    END;
+  ELSIF TG_TABLE_NAME = 'pages' THEN
+    IF OLD.status IS DISTINCT FROM NEW.status THEN
+      audit_action := CASE NEW.status
+        WHEN 'published' THEN 'published'
+        WHEN 'archived' THEN 'archived'
+        WHEN 'review' THEN 'submitted_for_review'
+        WHEN 'draft' THEN 'unpublished'
+        ELSE 'updated'
+      END;
+    END IF;
+  ELSIF TG_TABLE_NAME = 'page_sections' THEN
+    IF OLD.status IS DISTINCT FROM NEW.status THEN
+      audit_action := CASE NEW.status
+        WHEN 'published' THEN 'published'
+        WHEN 'archived' THEN 'archived'
+        WHEN 'draft' THEN 'unpublished'
+        ELSE 'updated'
+      END;
+    END IF;
   END IF;
 
   INSERT INTO public.cms_audit_logs (
@@ -421,6 +439,49 @@ CREATE TRIGGER cms_page_sections_revision
 CREATE TRIGGER cms_page_section_translations_revision
   AFTER INSERT OR UPDATE ON public.page_section_translations
   FOR EACH ROW EXECUTE FUNCTION public.cms_record_page_revision();
+
+-- Editing any part of a published page removes it from public delivery until republished.
+-- This avoids silently changing live content without a fresh publish action.
+CREATE OR REPLACE FUNCTION public.cms_unpublish_page_after_child_edit()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = pg_catalog, public
+AS $function$
+DECLARE
+  parent_page_id uuid;
+BEGIN
+  IF TG_TABLE_NAME = 'page_translations' THEN
+    parent_page_id := NEW.page_id;
+  ELSIF TG_TABLE_NAME = 'page_sections' THEN
+    parent_page_id := NEW.page_id;
+  ELSIF TG_TABLE_NAME = 'page_section_translations' THEN
+    SELECT page_id INTO parent_page_id
+    FROM public.page_sections
+    WHERE id = NEW.page_section_id;
+  END IF;
+
+  UPDATE public.pages
+  SET status = 'draft', published_at = NULL
+  WHERE id = parent_page_id AND status = 'published';
+
+  RETURN NEW;
+END;
+$function$;
+
+CREATE TRIGGER cms_page_translations_unpublish_parent
+  AFTER INSERT OR UPDATE ON public.page_translations
+  FOR EACH ROW EXECUTE FUNCTION public.cms_unpublish_page_after_child_edit();
+
+CREATE TRIGGER cms_page_sections_unpublish_parent
+  AFTER INSERT OR UPDATE ON public.page_sections
+  FOR EACH ROW EXECUTE FUNCTION public.cms_unpublish_page_after_child_edit();
+
+CREATE TRIGGER cms_page_section_translations_unpublish_parent
+  AFTER INSERT OR UPDATE ON public.page_section_translations
+  FOR EACH ROW EXECUTE FUNCTION public.cms_unpublish_page_after_child_edit();
+
+REVOKE ALL ON FUNCTION public.cms_unpublish_page_after_child_edit() FROM PUBLIC, anon, authenticated;
 
 COMMENT ON COLUMN public.pages.division_id IS
   'NULL means group-wide page (super-admin managed); otherwise content access is scoped to the assigned division.';
