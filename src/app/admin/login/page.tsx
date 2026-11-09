@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/browser";
 import { adminMessages, type AdminLocale } from "@/lib/admin-messages";
@@ -40,7 +41,7 @@ export default function AdminLoginPage() {
 
   return <div className="cms-login-wrap">
     <section className="cms-login-brand">
-      <a className="cms-brand" href="/"><span className="cms-brand-symbol">N</span><span><strong>NSOMEX GROUP</strong><small>CONNECTING GLOBAL BUSINESS TO GLOBAL OPPORTUNITY</small></span></a>
+      <Link className="cms-brand" href="/"><span className="cms-brand-symbol">N</span><span><strong>NSOMEX GROUP</strong><small>CONNECTING GLOBAL BUSINESS TO GLOBAL OPPORTUNITY</small></span></Link>
       <div className="cms-login-message">
         <p className="cms-eyebrow">PRIVATE ADMINISTRATION</p>
         <h1>One group.<br />One connected<br /><span style={{color:"#e0c48d"}}>workspace.</span></h1>
