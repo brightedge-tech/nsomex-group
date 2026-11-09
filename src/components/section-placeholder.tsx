@@ -8,8 +8,6 @@ type SectionKey = "about" | "projects" | "insights" | "contact";
 
 export function SectionPlaceholder({ locale, section }: { locale: Locale; section: SectionKey }) {
   const copy = getDictionary(locale).sections[section];
-  const showMedia = section === "about" || section === "projects";
-  const mediaCopy = section === "about" ? getDictionary(locale).sections.about : getDictionary(locale).sections.projects;
   return (
     <main>
       <SiteHeader locale={locale} currentPath={section} />
@@ -18,22 +16,23 @@ export function SectionPlaceholder({ locale, section }: { locale: Locale; sectio
         <h1>{copy.title}</h1>
         <p>{copy.description}</p>
       </div></section>
-      {showMedia ? (
+      {section === "about" ? (
         <section className="section-wrap editorial-media-section">
-          <MediaPlaceholder label={mediaCopy.imageLabel} detail={mediaCopy.imageDetail} ratio="wide" />
-          {section === "about" ? (
-            <div className="leadership-placeholders">
-              {[1, 2, 3].map((item) => (
-                <MediaPlaceholder key={item} label={locale === "fr" ? "PORTRAIT DE LA DIRECTION" : "LEADERSHIP PORTRAIT"} detail={locale === "fr" ? "Profil à présenter après validation" : "Profile to be added after approval"} ratio="portrait" />
-              ))}
-            </div>
-          ) : (
-            <div className="project-media-grid">
-              {[1, 2, 3].map((item) => (
-                <MediaPlaceholder key={item} label={locale === "fr" ? `PROJET / IMAGE 0${item}` : `PROJECT / IMAGE 0${item}`} detail={locale === "fr" ? "Visuel approuvé à ajouter" : "Approved project image to be added"} ratio="landscape" />
-              ))}
-            </div>
-          )}
+          <MediaPlaceholder label={getDictionary(locale).sections.about.imageLabel} detail={getDictionary(locale).sections.about.imageDetail} ratio="wide" />
+          <div className="leadership-placeholders">
+            {[1, 2, 3].map((item) => (
+              <MediaPlaceholder key={item} label={locale === "fr" ? "PORTRAIT DE LA DIRECTION" : "LEADERSHIP PORTRAIT"} detail={locale === "fr" ? "Profil à présenter après validation" : "Profile to be added after approval"} ratio="portrait" />
+            ))}
+          </div>
+        </section>
+      ) : section === "projects" ? (
+        <section className="section-wrap editorial-media-section">
+          <MediaPlaceholder label={getDictionary(locale).sections.projects.imageLabel} detail={getDictionary(locale).sections.projects.imageDetail} ratio="wide" />
+          <div className="project-media-grid">
+            {[1, 2, 3].map((item) => (
+              <MediaPlaceholder key={item} label={locale === "fr" ? `PROJET / IMAGE 0${item}` : `PROJECT / IMAGE 0${item}`} detail={locale === "fr" ? "Visuel approuvé à ajouter" : "Approved project image to be added"} ratio="landscape" />
+            ))}
+          </div>
         </section>
       ) : null}
       <section className="directory-section section-wrap">
