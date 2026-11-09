@@ -437,3 +437,31 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
 .focus-card-link .card-link span { margin-left: 7px; }
 .focus-card-link { border-top: 2px solid transparent; }
 .focus-card-link:hover { border-top-color: var(--gold); }
+
+
+/* Published CMS page renderer */
+.public-cms-section { padding-top: 76px; padding-bottom: 76px; }
+.public-cms-heading { max-width: 850px; margin: 0 0 20px; font: 600 clamp(30px, 3.8vw, 46px)/1.18 Arial, Helvetica, sans-serif; letter-spacing: -.045em; }
+.public-cms-lead { max-width: 760px; color: #66727d; font-size: 16px; line-height: 1.9; margin: 0 0 28px; }
+.public-cms-body { max-width: 800px; }
+.public-cms-body p { color: #66727d; font-size: 14px; line-height: 2; margin: 0 0 20px; white-space: pre-line; }
+.public-cms-card-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; border: 1px solid #d8d6d0; background: #d8d6d0; margin-top: 32px; }
+.public-cms-card { min-height: 205px; padding: 28px; background: #fff; }
+.public-cms-card h3 { margin: 28px 0 12px; font: 600 20px/1.3 Arial, Helvetica, sans-serif; letter-spacing: -.035em; }
+.public-cms-card p { margin: 0; color: #66727d; font-size: 12px; line-height: 1.9; }
+.public-cms-list { list-style: none; padding: 0; margin: 30px 0 0; border-top: 1px solid #d8d6d0; }
+.public-cms-list li { display: grid; grid-template-columns: 48px minmax(0,1fr); gap: 18px; align-items: start; padding: 22px 8px; border-bottom: 1px solid #d8d6d0; }
+.public-cms-list strong { display: block; margin-bottom: 6px; font-size: 15px; }
+.public-cms-list p { margin: 0; color: #66727d; font-size: 13px; line-height: 1.8; }
+.public-cms-cta { margin-top: 48px; margin-bottom: 48px; padding-top: 48px; padding-bottom: 48px; background: var(--navy); color: #fff; }
+.public-cms-cta h2 { max-width: 700px; margin: 0 0 14px; font: 600 clamp(28px, 3.5vw, 42px)/1.2 Arial, Helvetica, sans-serif; letter-spacing: -.04em; }
+.public-cms-cta p:last-child { max-width: 700px; color: #b6c0ca; font-size: 14px; line-height: 1.9; }
+@media (max-width: 900px) { .public-cms-card-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media (max-width: 720px) {
+  .public-cms-section { padding-top: 55px; padding-bottom: 55px; }
+  .public-cms-lead { font-size: 14px; }
+  .public-cms-card-grid { grid-template-columns: 1fr; }
+  .public-cms-card { min-height: 165px; padding: 24px; }
+  .public-cms-list li { grid-template-columns: 36px minmax(0,1fr); gap: 12px; }
+  .public-cms-cta { margin-top: 30px; margin-bottom: 30px; padding-top: 35px; padding-bottom: 35px; }
+}
