@@ -7,7 +7,12 @@ import { getDictionary } from "@/i18n/dictionaries";
 type SectionKey = "about" | "projects" | "insights" | "contact";
 
 export function SectionPlaceholder({ locale, section }: { locale: Locale; section: SectionKey }) {
-  const copy = getDictionary(locale).sections[section];
+  const dictionary = getDictionary(locale);
+  const copy = dictionary.sections[section];
+  const note = section === "contact"
+    ? dictionary.sections.contact.responseNote
+    : dictionary.sections[section].note;
+
   return (
     <main>
       <SiteHeader locale={locale} currentPath={section} />
@@ -18,7 +23,7 @@ export function SectionPlaceholder({ locale, section }: { locale: Locale; sectio
       </div></section>
       {section === "about" ? (
         <section className="section-wrap editorial-media-section">
-          <MediaPlaceholder label={getDictionary(locale).sections.about.imageLabel} detail={getDictionary(locale).sections.about.imageDetail} ratio="wide" />
+          <MediaPlaceholder label={dictionary.sections.about.imageLabel} detail={dictionary.sections.about.imageDetail} ratio="wide" />
           <div className="leadership-placeholders">
             {[1, 2, 3].map((item) => (
               <MediaPlaceholder key={item} label={locale === "fr" ? "PORTRAIT DE LA DIRECTION" : "LEADERSHIP PORTRAIT"} detail={locale === "fr" ? "Profil à présenter après validation" : "Profile to be added after approval"} ratio="portrait" />
@@ -27,7 +32,7 @@ export function SectionPlaceholder({ locale, section }: { locale: Locale; sectio
         </section>
       ) : section === "projects" ? (
         <section className="section-wrap editorial-media-section">
-          <MediaPlaceholder label={getDictionary(locale).sections.projects.imageLabel} detail={getDictionary(locale).sections.projects.imageDetail} ratio="wide" />
+          <MediaPlaceholder label={dictionary.sections.projects.imageLabel} detail={dictionary.sections.projects.imageDetail} ratio="wide" />
           <div className="project-media-grid">
             {[1, 2, 3].map((item) => (
               <MediaPlaceholder key={item} label={locale === "fr" ? `PROJET / IMAGE 0${item}` : `PROJECT / IMAGE 0${item}`} detail={locale === "fr" ? "Visuel approuvé à ajouter" : "Approved project image to be added"} ratio="landscape" />
@@ -38,7 +43,7 @@ export function SectionPlaceholder({ locale, section }: { locale: Locale; sectio
       <section className="directory-section section-wrap">
         <div className="section-note">
           <span className="division-number">NSOMEX GROUP</span>
-          <p>{copy.note}</p>
+          <p>{note}</p>
         </div>
       </section>
       <SiteFooter locale={locale} />
