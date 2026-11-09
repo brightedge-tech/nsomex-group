@@ -80,7 +80,7 @@ export default async function CapabilityDetailPage({ params }: Props) {
               <Link className="service-card" key={offering} href={`/${locale}/divisions/${slug}/${unitSlug}/${toServiceSlug(getCapabilityOfferings(unitSlug, "en")[index])}`}>
                 <span className="division-number">{String(index + 1).padStart(2, "0")}</span>
                 <h3>{offering}</h3>
-                <span className="service-card-link">{t.exploreCapability} <span aria-hidden="true">↗</span></span>
+                <span className="service-card-link">{t.viewDetails} <span aria-hidden="true">↗</span></span>
               </Link>
             ))}
           </div>
