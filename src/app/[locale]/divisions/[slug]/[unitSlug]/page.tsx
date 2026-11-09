@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getDictionary } from "@/i18n/dictionaries";
 import { isLocale } from "@/i18n/config";
 import { divisions, getDivision } from "@/lib/site";
+import { getCapabilityOfferings } from "@/lib/capability-offerings";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
@@ -41,6 +42,7 @@ export default async function CapabilityDetailPage({ params }: Props) {
   const capability = division?.focus.find((item) => item.slug === unitSlug);
   if (!division || !capability) notFound();
   const t = getDictionary(locale).divisions;
+  const offerings = getCapabilityOfferings(unitSlug, locale);
 
   return (
     <main>
@@ -60,6 +62,21 @@ export default async function CapabilityDetailPage({ params }: Props) {
           <h2>{capability.name[locale]}</h2>
           <p>{capability.description[locale]}</p>
         </div>
+
+        <section className="offerings-section" aria-labelledby="offerings-heading">
+          <div className="offerings-heading">
+            <p className="eyebrow dark-eyebrow">{t.capabilityEyebrow}</p>
+            <h2 id="offerings-heading">{t.offerings}</h2>
+          </div>
+          <ul className="offerings-list">
+            {offerings.map((offering, index) => (
+              <li key={offering}>
+                <span className="division-number">{String(index + 1).padStart(2, "0")}</span>
+                <span>{offering}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
 
         <div className="capability-panels">
           <article className="capability-panel">
