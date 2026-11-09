@@ -121,6 +121,8 @@ export async function saveCoreContent(input: CoreContentInput): Promise<Result> 
     service: { service_id: recordId },
   }[kind];
 
+  if (!recordId) return { ok: false, error: "The record could not be saved." };
+
   const translations = [
     { locale_code: "en", field_name: "name", content: enName },
     { locale_code: "fr", field_name: "name", content: frName },
