@@ -465,3 +465,24 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
   .public-cms-list li { grid-template-columns: 36px minmax(0,1fr); gap: 12px; }
   .public-cms-cta { margin-top: 30px; margin-bottom: 30px; padding-top: 35px; padding-bottom: 35px; }
 }
+
+
+/* Core business catalogue CMS workspace */
+.cms-catalogue-workspace { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+.cms-catalogue-panel { min-width: 0; padding: 25px; background: #fff; border: 1px solid #deddd7; }
+.cms-catalogue-toolbar { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 25px; }
+.cms-catalogue-toolbar label { display: grid; gap: 8px; color: #8c7040; font-size: 10px; font-weight: 700; letter-spacing: .08em; }
+.cms-catalogue-toolbar select { min-height: 45px; width: 100%; padding: 10px 12px; border: 1px solid #d8d6d0; background: #fbfaf7; color: var(--ink); font: 13px Arial, sans-serif; }
+.cms-catalogue-form { padding-top: 0; }
+.cms-catalogue-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 14px; padding-bottom: 14px; border-bottom: 1px solid #e8e6e0; }
+.cms-catalogue-row > div { min-width: 0; display: grid; gap: 5px; }
+.cms-catalogue-row strong { color: var(--ink); font-size: 13px; }
+.cms-catalogue-row span { color: #78818a; font-size: 10px; overflow-wrap: anywhere; }
+.cms-catalogue-row button { flex: 0 0 auto; border: 1px solid #d8d6d0; background: #fbfaf7; color: #80683f; padding: 8px 11px; font-size: 10px; font-weight: 700; cursor: pointer; }
+.cms-catalogue-message { color: #246b48; font-size: 12px; line-height: 1.6; }
+@media (max-width: 1050px) { .cms-catalogue-workspace { grid-template-columns: 1fr; } }
+@media (max-width: 720px) {
+  .cms-catalogue-panel { padding: 18px; }
+  .cms-catalogue-toolbar { grid-template-columns: 1fr; }
+  .cms-catalogue-row { padding-left: 8px !important; }
+}
