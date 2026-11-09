@@ -6,6 +6,7 @@ import { isLocale } from "@/i18n/config";
 import { divisions, getDivision } from "@/lib/site";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { MediaPlaceholder } from "@/components/media-placeholder";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -41,6 +42,9 @@ export default async function DivisionDetailPage({ params }: Props) {
         <p className="eyebrow"><span className="eyebrow-line" />{division.number} / NSOMEX GROUP</p>
         <h1>{division.name}</h1><p>{division.overview[locale]}</p>
       </div></section>
+      <section className="division-detail-media section-wrap">
+        <MediaPlaceholder label={`${division.name} / ${getDictionary(locale).media.divisionVisual}`} detail={getDictionary(locale).media.placeholderDetail} ratio="wide" />
+      </section>
       <section className="directory-section section-wrap">
         <p className="eyebrow dark-eyebrow">{t.focus}</p>
         <div className="focus-grid">
