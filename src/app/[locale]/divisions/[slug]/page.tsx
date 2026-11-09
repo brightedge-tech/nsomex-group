@@ -45,10 +45,10 @@ export default async function DivisionDetailPage({ params }: Props) {
         <p className="eyebrow dark-eyebrow">{t.focus}</p>
         <div className="focus-grid">
           {division.focus.map((item, index) => (
-            <article className="focus-card" key={item.slug}>
+            <Link className="focus-card focus-card-link" key={item.slug} href={`/${locale}/divisions/${slug}/${item.slug}`} aria-label={`${item.name[locale]} — ${t.exploreCapability}`}>
               <span className="division-number">{String(index + 1).padStart(2, "0")}</span>
               <h2>{item.name[locale]}</h2><p>{item.description[locale]}</p>
-            </article>
+            </Link>
           ))}
         </div>
         <Link className="button button-dark page-contact" href={`/${locale}/contact`}>{t.enquire} <span aria-hidden="true">↗</span></Link>
