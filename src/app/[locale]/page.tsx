@@ -5,6 +5,7 @@ import { isLocale } from "@/i18n/config";
 import { divisions } from "@/lib/site";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { MediaPlaceholder } from "@/components/media-placeholder";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -39,6 +40,9 @@ export default async function HomePage({ params }: Props) {
           <p>{t.aboutOne}</p><p>{t.aboutTwo}</p>
           <Link className="text-link dark-link" href={`/${locale}/about`}>{t.more} <span aria-hidden="true">→</span></Link>
         </div>
+      </section>
+      <section className="section-wrap home-media-section">
+        <MediaPlaceholder label={getDictionary(locale).media.groupVisual} detail={getDictionary(locale).media.placeholderDetail} ratio="wide" />
       </section>
       <section className="divisions-section">
         <div className="section-wrap">

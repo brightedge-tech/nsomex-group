@@ -5,6 +5,8 @@ import { isLocale } from "@/i18n/config";
 import { divisions } from "@/lib/site";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { MediaPlaceholder } from "@/components/media-placeholder";
+import { getDictionary } from "@/i18n/dictionaries";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -13,6 +15,7 @@ export default async function DivisionsPage({ params }: Props) {
   if (!isLocale(rawLocale)) notFound();
   const locale = rawLocale;
   const t = getDictionary(locale).divisions;
+  const media = getDictionary(locale).media;
   return (
     <main>
       <SiteHeader locale={locale} currentPath="divisions" />
@@ -23,7 +26,7 @@ export default async function DivisionsPage({ params }: Props) {
         <div className="directory-grid">
           {divisions.map((division) => (
             <article className="directory-card" key={division.slug}>
-              <span className="division-number">{division.number}</span><h2>{division.name}</h2>
+              <span className="division-number">{division.number}</span><MediaPlaceholder className="directory-card-media" label={`${media.divisionVisual} / ${division.name}`} detail={media.placeholderDetail} ratio="landscape" /><h2>{division.name}</h2>
               <p>{division.summary[locale]}</p>
               <Link className="card-link" href={`/${locale}/divisions/${division.slug}`}>{t.overview} <span aria-hidden="true">→</span></Link>
             </article>
