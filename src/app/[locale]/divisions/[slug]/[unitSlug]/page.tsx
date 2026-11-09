@@ -59,7 +59,7 @@ export default async function CapabilityDetailPage({ params }: Props) {
       <section className="section-wrap capability-content">
         <div className="capability-intro">
           <p className="eyebrow dark-eyebrow">{t.capabilityOverview}</p>
-          <h2>{capability.name[locale]}</h2>
+          <h2>{t.scopeHeading}</h2>
           <p>{capability.description[locale]}</p>
         </div>
 
@@ -93,11 +93,11 @@ export default async function CapabilityDetailPage({ params }: Props) {
 
         <div className="capability-cta">
           <div>
-            <p className="eyebrow">{t.eyebrow}</p>
-            <h2>{t.partnership}</h2>
-            <p>{t.partnershipText}</p>
+            <p className="eyebrow">{t.capabilityEyebrow}</p>
+            <h2>{t.contactPrompt}</h2>
+            <p>{t.contactPromptText}</p>
           </div>
-          <Link className="button button-primary" href={`/${locale}/contact`}>{t.enquire} <span aria-hidden="true">↗</span></Link>
+          <Link className="button button-primary" href={`/${locale}/contact`}>{t.contactCta} <span aria-hidden="true">↗</span></Link>
         </div>
       </section>
       <SiteFooter locale={locale} />
