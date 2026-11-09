@@ -3,6 +3,7 @@ import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { ContactEnquiryForm } from "@/components/contact-enquiry-form";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -46,6 +47,7 @@ export default async function ContactPage({ params }: Props) {
             <span className="contact-method-action">{t.callAction} ↗</span>
           </a>
         </div>
+        <ContactEnquiryForm locale={locale} />
         <div className="contact-note">
           <span className="division-number">NSOMEX GROUP / GLOBAL ENQUIRIES</span>
           <p>{t.responseNote}</p>
