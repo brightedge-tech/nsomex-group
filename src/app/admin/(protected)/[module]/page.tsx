@@ -30,19 +30,28 @@ export default async function AdminModulePage({params}:{params:Promise<{module:s
   if(module === "pages") {
     const supabase = await createClient();
     if (!supabase) notFound();
-    const [{ data: pageData }, { data: divisionData }, { data: { user } }] = await Promise.all([
+    const [{ data: pageData }, { data: { user } }] = await Promise.all([
       supabase.from("pages").select("id,slug,template_key,status,division_id,show_in_navigation,navigation_order,page_translations(locale_code,title,summary),page_sections(id,section_key,section_type,status,sort_order,page_section_translations(locale_code,content))").order("updated_at",{ascending:false}),
-      supabase.from("divisions").select("id,code").eq("is_active",true).order("sort_order"),
       supabase.auth.getUser(),
     ]);
     const { data: roles } = user
-      ? await supabase.from("cms_role_assignments").select("role").eq("user_id",user.id).is("revoked_at",null)
-      : { data: [] as {role:string}[] };
+      ? await supabase.from("cms_role_assignments").select("role,division_id").eq("user_id",user.id).is("revoked_at",null)
+      : { data: [] as {role:string;division_id:string|null}[] };
+    const canManageGlobal = Boolean(roles?.some(role=>role.role==="super_admin"));
+    const assignedDivisionIds = [...new Set((roles ?? []).map(role=>role.division_id).filter((id):id is string=>Boolean(id)))];
+    let divisionQuery = supabase.from("divisions").select("id,code").eq("is_active",true).order("sort_order");
+    if (!canManageGlobal) {
+      if (assignedDivisionIds.length === 0) {
+        return <section><div className="cms-notice">No active division access is assigned to this account.</div></section>;
+      }
+      divisionQuery = divisionQuery.in("id",assignedDivisionIds);
+    }
+    const { data: divisionData } = await divisionQuery;
     const pageRows = (pageData ?? []) as unknown as PageRow[];
     const divisionRows = (divisionData ?? []) as {id:string;code:string}[];
     return <section>
       <div className="cms-page-heading"><div><p className="cms-eyebrow">CMS MODULE</p><h1>{item.title}</h1><p>{item.description}</p></div></div>
-      <PagesWorkspace pages={pageRows} divisions={divisionRows} canManageGlobal={Boolean(roles?.some(role=>role.role==="super_admin"))} />
+      <PagesWorkspace pages={pageRows} divisions={divisionRows} canManageGlobal={canManageGlobal} />
     </section>;
   }
 
