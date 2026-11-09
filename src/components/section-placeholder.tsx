@@ -9,6 +9,7 @@ type SectionKey = "about" | "projects" | "insights" | "contact";
 export function SectionPlaceholder({ locale, section }: { locale: Locale; section: SectionKey }) {
   const copy = getDictionary(locale).sections[section];
   const showMedia = section === "about" || section === "projects";
+  const mediaCopy = section === "about" ? getDictionary(locale).sections.about : getDictionary(locale).sections.projects;
   return (
     <main>
       <SiteHeader locale={locale} currentPath={section} />
@@ -19,7 +20,7 @@ export function SectionPlaceholder({ locale, section }: { locale: Locale; sectio
       </div></section>
       {showMedia ? (
         <section className="section-wrap editorial-media-section">
-          <MediaPlaceholder label={copy.imageLabel} detail={copy.imageDetail} ratio="wide" />
+          <MediaPlaceholder label={mediaCopy.imageLabel} detail={mediaCopy.imageDetail} ratio="wide" />
           {section === "about" ? (
             <div className="leadership-placeholders">
               {[1, 2, 3].map((item) => (
