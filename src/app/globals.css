@@ -486,3 +486,47 @@ a:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
   .cms-catalogue-toolbar { grid-template-columns: 1fr; }
   .cms-catalogue-row { padding-left: 8px !important; }
 }
+
+
+/* Projects portfolio and private media CMS */
+.cms-projects-workspace { display: grid; gap: 24px; }
+.cms-projects-layout { display: grid; grid-template-columns: minmax(220px,.72fr) minmax(0,1.5fr); gap: 22px; align-items: start; }
+.cms-projects-list, .cms-media-panel { min-width: 0; padding: 22px; background: #fff; border: 1px solid #deddd7; }
+.cms-projects-layout .cms-pages-editor { min-width: 0; padding: 24px; background: #fff; border: 1px solid #deddd7; }
+.cms-projects-workspace .cms-editor-form { display: grid; gap: 15px; }
+.cms-projects-workspace .cms-editor-form label, .cms-media-panel label { display: grid; gap: 7px; color: #80683f; font-size: 10px; font-weight: 700; letter-spacing: .06em; }
+.cms-projects-workspace .cms-editor-form input, .cms-projects-workspace .cms-editor-form select, .cms-projects-workspace .cms-editor-form textarea,
+.cms-media-panel input, .cms-media-panel select {
+  width: 100%; min-height: 42px; padding: 10px 12px; border: 1px solid #d8d6d0; border-radius: 0;
+  background: #fbfaf7; color: var(--ink); font: 13px Arial, sans-serif; letter-spacing: normal;
+}
+.cms-projects-workspace .cms-editor-form textarea { resize: vertical; line-height: 1.7; }
+.cms-projects-workspace .cms-editor-two { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 13px; }
+.cms-projects-workspace .cms-editor-language { display: flex; justify-content: space-between; padding: 12px 0 8px; border-bottom: 1px solid #e5e2da; color: var(--ink); font-size: 11px; }
+.cms-projects-workspace .cms-editor-language span { color: #9a7b47; font-size: 9px; letter-spacing: .12em; }
+.cms-projects-workspace .cms-inline-check { display: flex !important; align-items: center; gap: 10px !important; color: #58636d !important; }
+.cms-projects-workspace .cms-inline-check input { width: 16px; min-height: 16px; }
+.cms-projects-workspace .cms-primary-button { min-height: 42px; padding: 11px 17px; border: 1px solid var(--navy); background: var(--navy); color: #fff; font-size: 11px; font-weight: 700; cursor: pointer; }
+.cms-projects-workspace button:disabled { opacity: .55; cursor: not-allowed; }
+.cms-project-workflow { margin-top: 22px; padding-top: 18px; border-top: 1px solid #e5e2da; display: grid; gap: 12px; color: var(--ink); font-size: 12px; }
+.cms-project-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.cms-project-actions button, .cms-media-row button { border: 1px solid #d8d6d0; background: #fbfaf7; color: #80683f; padding: 9px 12px; font-size: 10px; font-weight: 700; cursor: pointer; }
+.cms-project-message { margin: 16px 0 0; color: #246b48; font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
+.cms-media-panel { display: grid; gap: 18px; }
+.cms-media-upload { display: grid; grid-template-columns: minmax(170px,.7fr) minmax(0,1.3fr); gap: 14px; }
+.cms-media-hint { margin: -8px 0 0; color: #78818a; font-size: 11px; }
+.cms-media-attach { padding: 18px; background: #f8f7f3; border: 1px solid #e5e2da; display: grid; gap: 12px; color: var(--ink); font-size: 12px; }
+.cms-media-attach p { margin: 0; color: #78818a; font-size: 11px; }
+.cms-media-attach .cms-editor-two { display: grid; grid-template-columns: minmax(0,1fr) minmax(130px,.6fr) auto; gap: 12px; align-items: end; }
+.cms-media-list { display: grid; }
+.cms-media-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 13px 0; border-bottom: 1px solid #e8e6e0; }
+.cms-media-row > div { min-width: 0; display: grid; gap: 5px; }
+.cms-media-row strong { color: var(--ink); font-size: 12px; overflow-wrap: anywhere; }
+.cms-media-row span { color: #78818a; font-size: 10px; }
+.cms-media-row button { flex: 0 0 auto; }
+@media (max-width: 1050px) { .cms-projects-layout { grid-template-columns: 1fr; } }
+@media (max-width: 720px) {
+  .cms-projects-list, .cms-media-panel, .cms-projects-layout .cms-pages-editor { padding: 17px; }
+  .cms-projects-workspace .cms-editor-two, .cms-media-upload, .cms-media-attach .cms-editor-two { grid-template-columns: 1fr; }
+  .cms-media-row { align-items: flex-start; flex-direction: column; }
+}
