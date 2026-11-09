@@ -29,13 +29,6 @@ const tableByKind = {
   service: "services",
 } as const;
 
-const parentColumn = {
-  division: null,
-  business_unit: "division_id",
-  category: "business_unit_id",
-  service: "category_id",
-} as const;
-
 function clean(value: unknown, max = 200): string {
   return typeof value === "string" ? value.trim().slice(0, max) : "";
 }
