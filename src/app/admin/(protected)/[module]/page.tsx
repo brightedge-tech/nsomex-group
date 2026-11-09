@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { PagesWorkspace } from "@/components/admin/pages-workspace";
 import { CoreContentWorkspace } from "@/components/admin/core-content-workspace";
+import { ProjectsMediaWorkspace } from "@/components/admin/projects-media-workspace";
 import { createClient } from "@/lib/supabase/server";
 
 const moduleInfo: Record<string,{title:string;description:string}> = {
@@ -41,6 +42,46 @@ export default async function AdminModulePage({params}:{params:Promise<{module:s
     return <section>
       <div className="cms-page-heading"><div><p className="cms-eyebrow">CMS MODULE</p><h1>{item.title}</h1><p>{item.description}</p></div></div>
       <CoreContentWorkspace divisions={(divisions ?? []) as never} />
+    </section>;
+  }
+
+  if(module === "projects" || module === "media") {
+    const supabase = await createClient();
+    if (!supabase) notFound();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) notFound();
+    const { data: roles } = await supabase
+      .from("cms_role_assignments")
+      .select("role,division_id")
+      .eq("user_id",user.id)
+      .is("revoked_at",null);
+    const canManageGlobal = Boolean(roles?.some(role=>role.role==="super_admin"));
+    const assignedDivisionIds = [...new Set((roles ?? []).map(role=>role.division_id).filter((id):id is string=>Boolean(id)))];
+    if (!canManageGlobal && assignedDivisionIds.length === 0) {
+      return <section><div className="cms-notice">No active division access is assigned to this account.</div></section>;
+    }
+    let divisionQuery = supabase.from("divisions").select("id,code").eq("is_active",true).order("sort_order");
+    let unitQuery = supabase.from("business_units").select("id,division_id,code").eq("is_active",true).order("sort_order");
+    let projectQuery = supabase.from("projects").select("id,division_id,business_unit_id,slug,project_type,status,location_name,city,region,country_code,started_on,completed_on,is_featured,sort_order,project_translations(locale_code,title,summary,description)").order("updated_at",{ascending:false});
+    let mediaQuery = supabase.from("media_assets").select("id,division_id,object_path,original_filename,mime_type,byte_size,status,created_at").order("created_at",{ascending:false});
+    if (!canManageGlobal) {
+      divisionQuery = divisionQuery.in("id",assignedDivisionIds);
+      unitQuery = unitQuery.in("division_id",assignedDivisionIds);
+      projectQuery = projectQuery.in("division_id",assignedDivisionIds);
+      mediaQuery = mediaQuery.in("division_id",assignedDivisionIds);
+    }
+    const [{data:divisions},{data:units},{data:projects},{data:media}] = await Promise.all([
+      divisionQuery,unitQuery,projectQuery,mediaQuery,
+    ]);
+    return <section>
+      <div className="cms-page-heading"><div><p className="cms-eyebrow">CMS MODULE</p><h1>{item.title}</h1><p>{item.description}</p></div></div>
+      <ProjectsMediaWorkspace
+        projects={(projects ?? []) as never}
+        divisions={(divisions ?? []) as never}
+        businessUnits={(units ?? []) as never}
+        mediaAssets={(media ?? []) as never}
+        canManageGlobal={canManageGlobal}
+      />
     </section>;
   }
 
