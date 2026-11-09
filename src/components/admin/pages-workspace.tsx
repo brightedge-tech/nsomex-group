@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { changePageStatus, changeSectionStatus, savePage, saveSection } from "@/app/admin/(protected)/[module]/actions";
 
 type Translation = { locale_code: string; title?: string; summary?: string | null; content?: Record<string, unknown> };
@@ -19,11 +19,11 @@ type Props = { pages: Page[]; divisions: Division[]; canManageGlobal: boolean };
 
 const emptyPage = {
   id: undefined as string | undefined, slug: "", templateKey: "standard", divisionId: "",
-  showInNavigation: false, navigationOrder: 0, enTitle: "", enSummary: "", frTitle: "", frSummary: "",
+  showInNavigation: false, navigation{t.order}: 0, enTitle: "", enSummary: "", frTitle: "", frSummary: "",
 };
 const emptySection = {
   id: undefined as string | undefined, pageId: "", sectionKey: "", sectionType: "text",
-  sortOrder: 0, enContent: '{\n  "heading": "",\n  "body": ""\n}', frContent: '{\n  "heading": "",\n  "body": ""\n}',
+  sort{t.order}: 0, enContent: '{\n  "heading": "",\n  "body": ""\n}', frContent: '{\n  "heading": "",\n  "body": ""\n}',
 };
 
 function translation<T extends Translation>(items: T[] | undefined, locale: string): T | undefined {
@@ -32,6 +32,33 @@ function translation<T extends Translation>(items: T[] | undefined, locale: stri
 
 export function PagesWorkspace({ pages, divisions, canManageGlobal }: Props) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const locale = searchParams.get("lang") === "fr" ? "fr" : "en";
+  const t = locale === "fr" ? {
+    websitePages:"Pages du site", createPage:"＋ Créer une page", noPages:"Aucune page pour le moment. Créez la première lorsque vous êtes prêt.",
+    editPage:"Modifier la page", newPage:"Créer une page", contentEditor:"ÉDITEUR DE CONTENU", slug:"Identifiant URL", template:"Clé du modèle",
+    ownership:"Responsable du contenu", groupWide:"Page du groupe (super administrateur)", english:"Anglais", french:"Français",
+    pageTitle:"Titre de la page (anglais)", summary:"Résumé court (anglais)", pageTitleFr:"{t.pageTitleFr}", summaryFr:"{t.summaryFr}",
+    navigation{t.order}:"Ordre de navigation", showNavigation:"Afficher dans la navigation du site", savePage:"Enregistrer la page",
+    saving:"Enregistrement…", reusable:"CONTENU RÉUTILISABLE", sections:"Sections de la page", sectionCount:"sections",
+    editSection:"Modifier la section", addSection:"Ajouter une section", sectionKey:"Clé de section", sectionType:"Type de section",
+    order:"Ordre", englishJson:"Contenu anglais (JSON)", frenchJson:"{t.frenchJson}", saveSection:"Enregistrer la section",
+    cancelSection:"Annuler la modification", workflow:"Cycle de publication", draft:"Brouillon", review:"Soumettre à la validation",
+    publish:"Publier", archive:"Archiver", pageSaved:"Page enregistrée. Les deux versions linguistiques sont stockées.",
+    sectionSaved:"Section enregistrée en anglais et en français.", pageStatus:"Statut de la page modifié :", sectionStatus:"Statut de la section modifié :",
+  } : {
+    websitePages:"{t.websitePages}", createPage:"{t.createPage}", noPages:"{t.noPages}",
+    editPage:"Edit page", newPage:"Create a page", contentEditor:"{t.contentEditor}", slug:"{t.slug}", template:"{t.template}",
+    ownership:"{t.ownership}", groupWide:"{t.groupWide}", english:"English", french:"Français",
+    pageTitle:"{t.pageTitle}", summary:"{t.summary}", pageTitleFr:"Page title (French)", summaryFr:"Summary (French)",
+    navigation{t.order}:"{t.navigation{t.order}}", showNavigation:"{t.showNavigation}", savePage:"Save page",
+    saving:"Saving…", reusable:"{t.reusable}", sections:"{t.sections}", sectionCount:"sections",
+    editSection:"{t.editSection}", addSection:"{t.addSection}", sectionKey:"{t.sectionKey}", sectionType:"{t.sectionType}",
+    order:"{t.order}", englishJson:"{t.englishJson}", frenchJson:"French content (JSON)", saveSection:"Save section",
+    cancelSection:"{t.cancelSection}", workflow:"Page workflow", draft:"Save as draft", review:"Submit for review",
+    publish:"Publish page", archive:"Archive", pageSaved:"Page saved. Both language versions are stored.",
+    sectionSaved:"Section saved in English and French.", pageStatus:"Page status changed to", sectionStatus:"Section status changed to",
+  };
   const [pageForm, setPageForm] = useState({ ...emptyPage, divisionId: canManageGlobal ? "" : divisions[0]?.id ?? "" });
   const [sectionForm, setSectionForm] = useState(emptySection);
   const [message, setMessage] = useState("");
@@ -44,7 +71,7 @@ export function PagesWorkspace({ pages, divisions, canManageGlobal }: Props) {
     const fr = translation(page.page_translations, "fr");
     setPageForm({
       id: page.id, slug: page.slug, templateKey: page.template_key, divisionId: page.division_id ?? "",
-      showInNavigation: page.show_in_navigation, navigationOrder: page.navigation_order,
+      showInNavigation: page.show_in_navigation, navigation{t.order}: page.navigation_order,
       enTitle: en?.title ?? "", enSummary: en?.summary ?? "",
       frTitle: fr?.title ?? "", frSummary: fr?.summary ?? "",
     });
@@ -59,7 +86,7 @@ export function PagesWorkspace({ pages, divisions, canManageGlobal }: Props) {
     setBusy(false);
     if (!result.ok) { setMessage(result.error); return; }
     setPageForm(current => ({ ...current, id: result.id }));
-    setMessage("Page saved. Both language versions are stored.");
+    setMessage(t.pageSaved);
     router.refresh();
   }
 
@@ -68,7 +95,7 @@ export function PagesWorkspace({ pages, divisions, canManageGlobal }: Props) {
     setBusy(true); setMessage("");
     const result = await changePageStatus(pageForm.id, status);
     setBusy(false);
-    setMessage(result.ok ? `Page status changed to ${status}.` : result.error);
+    setMessage(result.ok ? `${t.pageStatus} ${status}.` : result.error);
     if (result.ok) router.refresh();
   }
 
@@ -78,7 +105,7 @@ export function PagesWorkspace({ pages, divisions, canManageGlobal }: Props) {
     setBusy(true); setMessage("");
     const result = await saveSection({ ...sectionForm, pageId: pageForm.id });
     setBusy(false);
-    setMessage(result.ok ? "Section saved in English and French." : result.error);
+    setMessage(result.ok ? t.sectionSaved : result.error);
     if (result.ok) {
       setSectionForm({ ...emptySection, pageId: pageForm.id });
       router.refresh();
@@ -89,7 +116,7 @@ export function PagesWorkspace({ pages, divisions, canManageGlobal }: Props) {
     setBusy(true); setMessage("");
     const result = await changeSectionStatus(id, status);
     setBusy(false);
-    setMessage(result.ok ? `Section status changed to ${status}.` : result.error);
+    setMessage(result.ok ? `${t.sectionStatus} ${status}.` : result.error);
     if (result.ok) router.refresh();
   }
 
@@ -98,7 +125,7 @@ export function PagesWorkspace({ pages, divisions, canManageGlobal }: Props) {
     const fr = translation(section.page_section_translations, "fr")?.content ?? {};
     setSectionForm({
       id: section.id, pageId: pageForm.id ?? "", sectionKey: section.section_key,
-      sectionType: section.section_type, sortOrder: section.sort_order,
+      sectionType: section.section_type, sort{t.order}: section.sort_order,
       enContent: JSON.stringify(en, null, 2), frContent: JSON.stringify(fr, null, 2),
     });
   }
@@ -106,9 +133,9 @@ export function PagesWorkspace({ pages, divisions, canManageGlobal }: Props) {
   return <div className="cms-pages-workspace">
     <div className="cms-pages-grid">
       <aside className="cms-pages-list">
-        <div className="cms-pages-list-head"><strong>Website pages</strong><span>{pages.length}</span></div>
-        <button type="button" className="cms-pages-new" onClick={() => { setPageForm({ ...emptyPage, divisionId: canManageGlobal ? "" : divisions[0]?.id ?? "" }); setSectionForm(emptySection); setMessage(""); }}>＋ Create page</button>
-        {pages.length === 0 && <p className="cms-pages-empty">No pages yet. Create the first page when you are ready.</p>}
+        <div className="cms-pages-list-head"><strong>{t.websitePages}</strong><span>{pages.length}</span></div>
+        <button type="button" className="cms-pages-new" onClick={() => { setPageForm({ ...emptyPage, divisionId: canManageGlobal ? "" : divisions[0]?.id ?? "" }); setSectionForm(emptySection); setMessage(""); }}>{t.createPage}</button>
+        {pages.length === 0 && <p className="cms-pages-empty">{t.noPages}</p>}
         {pages.map(page => {
           const en = translation(page.page_translations, "en");
           return <button type="button" key={page.id} className={page.id === pageForm.id ? "cms-page-item is-selected" : "cms-page-item"} onClick={() => selectPage(page)}>
@@ -120,66 +147,66 @@ export function PagesWorkspace({ pages, divisions, canManageGlobal }: Props) {
 
       <section className="cms-pages-editor">
         <div className="cms-pages-editor-heading">
-          <div><p className="cms-eyebrow">CONTENT EDITOR</p><h2>{pageForm.id ? "Edit page" : "Create a page"}</h2></div>
+          <div><p className="cms-eyebrow">{t.contentEditor}</p><h2>{pageForm.id ? t.editPage : t.newPage}</h2></div>
           {selectedPage && <span className="cms-module-tag">{selectedPage.status}</span>}
         </div>
         <form onSubmit={submitPage} className="cms-editor-form">
           <div className="cms-editor-two">
-            <label>URL slug<input required pattern="[a-z0-9]+(-[a-z0-9]+)*" value={pageForm.slug} onChange={e=>setPageForm({...pageForm,slug:e.target.value})} placeholder="about-us" /></label>
-            <label>Template key<input required pattern="[a-z0-9]+(-[a-z0-9]+)*" value={pageForm.templateKey} onChange={e=>setPageForm({...pageForm,templateKey:e.target.value})} /></label>
+            <label>{t.slug}<input required pattern="[a-z0-9]+(-[a-z0-9]+)*" value={pageForm.slug} onChange={e=>setPageForm({...pageForm,slug:e.target.value})} placeholder="about-us" /></label>
+            <label>{t.template}<input required pattern="[a-z0-9]+(-[a-z0-9]+)*" value={pageForm.templateKey} onChange={e=>setPageForm({...pageForm,templateKey:e.target.value})} /></label>
           </div>
-          <label>Content ownership
+          <label>{t.ownership}
             <select value={pageForm.divisionId} onChange={e=>setPageForm({...pageForm,divisionId:e.target.value})}>
-              {canManageGlobal && <option value="">Group-wide page (super admin)</option>}
+              {canManageGlobal && <option value="">{t.groupWide}</option>}
               {divisions.map(division=><option key={division.id} value={division.id}>{division.code.replaceAll("-"," ")}</option>)}
             </select>
           </label>
-          <div className="cms-editor-language"><strong>English</strong><span>EN</span></div>
-          <label>Page title (English)<input required maxLength={200} value={pageForm.enTitle} onChange={e=>setPageForm({...pageForm,enTitle:e.target.value})} /></label>
-          <label>Short summary (English)<textarea rows={2} maxLength={600} value={pageForm.enSummary} onChange={e=>setPageForm({...pageForm,enSummary:e.target.value})} /></label>
-          <div className="cms-editor-language"><strong>Français</strong><span>FR</span></div>
-          <label>Titre de la page (français)<input required maxLength={200} value={pageForm.frTitle} onChange={e=>setPageForm({...pageForm,frTitle:e.target.value})} /></label>
-          <label>Résumé (français)<textarea rows={2} maxLength={600} value={pageForm.frSummary} onChange={e=>setPageForm({...pageForm,frSummary:e.target.value})} /></label>
+          <div className="cms-editor-language"><strong>{t.english}</strong><span>EN</span></div>
+          <label>{t.pageTitle}<input required maxLength={200} value={pageForm.enTitle} onChange={e=>setPageForm({...pageForm,enTitle:e.target.value})} /></label>
+          <label>{t.summary}<textarea rows={2} maxLength={600} value={pageForm.enSummary} onChange={e=>setPageForm({...pageForm,enSummary:e.target.value})} /></label>
+          <div className="cms-editor-language"><strong>{t.french}</strong><span>FR</span></div>
+          <label>{t.pageTitleFr}<input required maxLength={200} value={pageForm.frTitle} onChange={e=>setPageForm({...pageForm,frTitle:e.target.value})} /></label>
+          <label>{t.summaryFr}<textarea rows={2} maxLength={600} value={pageForm.frSummary} onChange={e=>setPageForm({...pageForm,frSummary:e.target.value})} /></label>
           <div className="cms-editor-two">
-            <label>Navigation order<input type="number" min={0} max={9999} value={pageForm.navigationOrder} onChange={e=>setPageForm({...pageForm,navigationOrder:Number(e.target.value)})} /></label>
-            <label className="cms-editor-check"><input type="checkbox" checked={pageForm.showInNavigation} onChange={e=>setPageForm({...pageForm,showInNavigation:e.target.checked})} /> Show in website navigation</label>
+            <label>{t.navigation{t.order}}<input type="number" min={0} max={9999} value={pageForm.navigation{t.order}} onChange={e=>setPageForm({...pageForm,navigation{t.order}:Number(e.target.value)})} /></label>
+            <label className="cms-editor-check"><input type="checkbox" checked={pageForm.showInNavigation} onChange={e=>setPageForm({...pageForm,showInNavigation:e.target.checked})} /> {t.showNavigation}</label>
           </div>
-          <button className="cms-login-submit" type="submit" disabled={busy}>{busy ? "Saving…" : "Save page"}</button>
+          <button className="cms-login-submit" type="submit" disabled={busy}>{busy ? t.saving : t.savePage}</button>
         </form>
 
         {selectedPage && <div className="cms-section-editor">
-          <div className="cms-pages-editor-heading"><div><p className="cms-eyebrow">REUSABLE CONTENT</p><h2>Page sections</h2></div><span className="cms-module-tag">{sections.length} sections</span></div>
+          <div className="cms-pages-editor-heading"><div><p className="cms-eyebrow">{t.reusable}</p><h2>{t.sections}</h2></div><span className="cms-module-tag">{sections.length} {t.sectionCount}</span></div>
           {sections.map(section=><div className="cms-section-row" key={section.id}>
             <button type="button" className="cms-section-edit" onClick={()=>editSection(section)}><strong>{section.section_key}</strong><span>{section.section_type} · {section.status}</span></button>
             <div className="cms-section-actions">
-              <button type="button" onClick={()=>updateSectionStatus(section.id,"published")} disabled={busy}>Publish</button>
-              <button type="button" onClick={()=>updateSectionStatus(section.id,"draft")} disabled={busy}>Draft</button>
-              <button type="button" onClick={()=>updateSectionStatus(section.id,"archived")} disabled={busy}>Archive</button>
+              <button type="button" onClick={()=>updateSectionStatus(section.id,"published")} disabled={busy}>{t.publish}</button>
+              <button type="button" onClick={()=>updateSectionStatus(section.id,"draft")} disabled={busy}>{t.draft}</button>
+              <button type="button" onClick={()=>updateSectionStatus(section.id,"archived")} disabled={busy}>{t.archive}</button>
             </div>
           </div>)}
           <form onSubmit={submitSection} className="cms-editor-form cms-section-form">
-            <h3>{sectionForm.id ? "Edit section" : "Add a section"}</h3>
+            <h3>{sectionForm.id ? "{t.editSection}" : "{t.addSection}"}</h3>
             <div className="cms-editor-two">
-              <label>Section key<input required pattern="[a-z0-9]+(-[a-z0-9]+)*" value={sectionForm.sectionKey} onChange={e=>setSectionForm({...sectionForm,sectionKey:e.target.value})} placeholder="intro" /></label>
-              <label>Section type<input required pattern="[a-z0-9]+(-[a-z0-9]+)*" value={sectionForm.sectionType} onChange={e=>setSectionForm({...sectionForm,sectionType:e.target.value})} placeholder="text" /></label>
+              <label>{t.sectionKey}<input required pattern="[a-z0-9]+(-[a-z0-9]+)*" value={sectionForm.sectionKey} onChange={e=>setSectionForm({...sectionForm,sectionKey:e.target.value})} placeholder="intro" /></label>
+              <label>{t.sectionType}<input required pattern="[a-z0-9]+(-[a-z0-9]+)*" value={sectionForm.sectionType} onChange={e=>setSectionForm({...sectionForm,sectionType:e.target.value})} placeholder="text" /></label>
             </div>
-            <label>Order<input type="number" min={0} max={9999} value={sectionForm.sortOrder} onChange={e=>setSectionForm({...sectionForm,sortOrder:Number(e.target.value)})} /></label>
+            <label>{t.order}<input type="number" min={0} max={9999} value={sectionForm.sort{t.order}} onChange={e=>setSectionForm({...sectionForm,sort{t.order}:Number(e.target.value)})} /></label>
             <div className="cms-editor-two">
-              <label>English content (JSON)<textarea required rows={7} value={sectionForm.enContent} onChange={e=>setSectionForm({...sectionForm,enContent:e.target.value})} /></label>
-              <label>Contenu français (JSON)<textarea required rows={7} value={sectionForm.frContent} onChange={e=>setSectionForm({...sectionForm,frContent:e.target.value})} /></label>
+              <label>{t.englishJson}<textarea required rows={7} value={sectionForm.enContent} onChange={e=>setSectionForm({...sectionForm,enContent:e.target.value})} /></label>
+              <label>{t.frenchJson}<textarea required rows={7} value={sectionForm.frContent} onChange={e=>setSectionForm({...sectionForm,frContent:e.target.value})} /></label>
             </div>
-            <button className="cms-login-submit" type="submit" disabled={busy}>{busy ? "Saving…" : "Save section"}</button>
-            {sectionForm.id && <button type="button" className="cms-pages-new" onClick={()=>setSectionForm({...emptySection,pageId:pageForm.id ?? ""})}>Cancel section edit</button>}
+            <button className="cms-login-submit" type="submit" disabled={busy}>{busy ? t.saving : t.saveSection}</button>
+            {sectionForm.id && <button type="button" className="cms-pages-new" onClick={()=>setSectionForm({...emptySection,pageId:pageForm.id ?? ""})}>{t.cancelSection}</button>}
           </form>
         </div>}
 
         {selectedPage && <div className="cms-status-actions">
-          <strong>Page workflow</strong>
+          <strong>{t.workflow}</strong>
           <div>
-            <button type="button" onClick={()=>updateStatus("draft")} disabled={busy}>Save as draft</button>
-            <button type="button" onClick={()=>updateStatus("review")} disabled={busy}>Submit for review</button>
-            <button type="button" onClick={()=>updateStatus("published")} disabled={busy}>Publish page</button>
-            <button type="button" onClick={()=>updateStatus("archived")} disabled={busy}>Archive</button>
+            <button type="button" onClick={()=>updateStatus("draft")} disabled={busy}>{t.draft}</button>
+            <button type="button" onClick={()=>updateStatus("review")} disabled={busy}>{t.review}</button>
+            <button type="button" onClick={()=>updateStatus("published")} disabled={busy}>{t.publish}</button>
+            <button type="button" onClick={()=>updateStatus("archived")} disabled={busy}>{t.archive}</button>
           </div>
         </div>}
         {message && <p className="cms-notice" role="status">{message}</p>}
