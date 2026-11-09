@@ -17,6 +17,12 @@ const dictionaries = {
       connection: "with a connection.", start: "Start a conversation", copyright: "All rights reserved.",
     },
     divisions: { eyebrow: "OUR DIVISIONS", title: "Four divisions. One connected group.", intro: "Explore the capabilities and areas of focus that bring the NSOMEX Group vision to life.", back: "All divisions", focus: "AREAS OF FOCUS", overview: "Division overview", enquire: "Discuss an opportunity" },
+    sections: {
+      about: { eyebrow: "ABOUT NSOMEX GROUP", title: "Connecting capability with opportunity.", description: "NSOMEX Group brings together complementary capabilities across technology, engineering, renewable energy, and global business. Our focus is on trust, collaboration, and practical execution across markets.", note: "Company profile, leadership information, and verified corporate details will be added after final review." },
+      projects: { eyebrow: "OUR WORK", title: "Projects and experience.", description: "This portfolio will present selected projects, their scope, locations, delivery stages, and approved media.", note: "Project case studies will be published only after their details and images have been verified and approved." },
+      insights: { eyebrow: "INSIGHTS", title: "Perspectives and updates.", description: "News, company updates, and useful perspectives from across the NSOMEX Group divisions.", note: "Editorial content is being prepared for publication." },
+      contact: { eyebrow: "CONTACT", title: "Start a conversation.", description: "Tell us about your organization, project, or partnership opportunity. The enquiry form and verified contact channels will be enabled before public launch.", note: "Official contact details are being confirmed. No unverified phone number or email address will be published." },
+    },
   },
   fr: {
     navigation: { about: "À propos", divisions: "Nos divisions", projects: "Projets", insights: "Actualités", contact: "Contact", connect: "Parlons ensemble" },
@@ -34,6 +40,12 @@ const dictionaries = {
       connection: "par une connexion.", start: "Entrer en contact", copyright: "Tous droits réservés.",
     },
     divisions: { eyebrow: "NOS DIVISIONS", title: "Quatre divisions. Un groupe connecté.", intro: "Découvrez les compétences et les domaines d'intervention qui donnent vie à la vision de NSOMEX Group.", back: "Toutes les divisions", focus: "DOMAINES D'INTERVENTION", overview: "Présentation de la division", enquire: "Discuter d'une opportunité" },
+    sections: {
+      about: { eyebrow: "À PROPOS DE NSOMEX GROUP", title: "Relier les compétences aux opportunités.", description: "NSOMEX Group réunit des compétences complémentaires dans les domaines de la technologie, de l'ingénierie, des énergies renouvelables et du commerce international. Nous privilégions la confiance, la collaboration et une exécution concrète sur les marchés.", note: "La présentation de l'entreprise, les informations sur la direction et les détails institutionnels vérifiés seront ajoutés après validation finale." },
+      projects: { eyebrow: "NOS RÉALISATIONS", title: "Projets et expériences.", description: "Ce portfolio présentera une sélection de projets, leur périmètre, leur localisation, leurs étapes de réalisation et les médias approuvés.", note: "Les études de cas ne seront publiées qu'après vérification et approbation des informations et des images." },
+      insights: { eyebrow: "ACTUALITÉS ET ANALYSES", title: "Perspectives et actualités.", description: "Actualités, informations du groupe et perspectives utiles issues des différentes divisions de NSOMEX Group.", note: "Les contenus éditoriaux sont en préparation." },
+      contact: { eyebrow: "CONTACT", title: "Engageons la conversation.", description: "Parlez-nous de votre organisation, de votre projet ou d'une opportunité de partenariat. Le formulaire de demande et les coordonnées vérifiées seront activés avant le lancement public.", note: "Les coordonnées officielles sont en cours de confirmation. Aucun numéro ni aucune adresse électronique non vérifiés ne seront publiés." },
+    },
   },
 } as const;
 
