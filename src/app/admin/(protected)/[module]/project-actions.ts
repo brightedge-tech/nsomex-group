@@ -114,3 +114,10 @@ export async function attachMediaToProject(input:{projectId:string;divisionId:st
   }).select("id").single();
   return error||!data?{ok:false,error:error?.message??"Unable to attach media."}:{ok:true,id:data.id};
 }
+
+export async function changeMediaStatus(mediaId:string,divisionId:string,status:"draft"|"published"|"archived"):Promise<Result>{
+  const auth=await authorized("media.manage",divisionId);
+  if(!auth.supabase) return {ok:false,error:auth.error};
+  const {error}=await auth.supabase.from("media_assets").update({status}).eq("id",mediaId).eq("division_id",divisionId);
+  return error?{ok:false,error:error.message}:{ok:true,id:mediaId};
+}
