@@ -2,6 +2,56 @@
 -- Writes remain authenticated and are constrained by cms_has_permission + RLS.
 BEGIN;
 
+CREATE POLICY "CMS admins can read all authorized divisions"
+  ON public.divisions FOR SELECT TO authenticated
+  USING (public.cms_has_permission('content.read_draft', id));
+
+CREATE POLICY "CMS admins can read authorized business units"
+  ON public.business_units FOR SELECT TO authenticated
+  USING (public.cms_has_permission('content.read_draft', division_id));
+
+CREATE POLICY "CMS admins can read authorized categories"
+  ON public.categories FOR SELECT TO authenticated
+  USING (
+    public.cms_has_permission(
+      'content.read_draft',
+      (SELECT bu.division_id FROM public.business_units bu WHERE bu.id = business_unit_id)
+    )
+  );
+
+CREATE POLICY "CMS admins can read authorized services"
+  ON public.services FOR SELECT TO authenticated
+  USING (
+    public.cms_has_permission(
+      'content.read_draft',
+      (SELECT bu.division_id
+       FROM public.categories c
+       JOIN public.business_units bu ON bu.id = c.business_unit_id
+       WHERE c.id = category_id)
+    )
+  );
+
+CREATE POLICY "CMS admins can read authorized core translations"
+  ON public.content_translations FOR SELECT TO authenticated
+  USING (
+    public.cms_has_permission(
+      'content.read_draft',
+      COALESCE(
+        division_id,
+        (SELECT bu.division_id FROM public.business_units bu WHERE bu.id = business_unit_id),
+        (SELECT bu.division_id
+         FROM public.categories c
+         JOIN public.business_units bu ON bu.id = c.business_unit_id
+         WHERE c.id = category_id),
+        (SELECT bu.division_id
+         FROM public.services s
+         JOIN public.categories c ON c.id = s.category_id
+         JOIN public.business_units bu ON bu.id = c.business_unit_id
+         WHERE s.id = service_id)
+      )
+    )
+  );
+
 GRANT INSERT, UPDATE ON TABLE
   public.divisions,
   public.business_units,
