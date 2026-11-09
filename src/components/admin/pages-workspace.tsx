@@ -32,7 +32,7 @@ function translation<T extends Translation>(items: T[] | undefined, locale: stri
 
 export function PagesWorkspace({ pages, divisions, canManageGlobal }: Props) {
   const router = useRouter();
-  const [pageForm, setPageForm] = useState(emptyPage);
+  const [pageForm, setPageForm] = useState({ ...emptyPage, divisionId: canManageGlobal ? "" : divisions[0]?.id ?? "" });
   const [sectionForm, setSectionForm] = useState(emptySection);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
@@ -107,7 +107,7 @@ export function PagesWorkspace({ pages, divisions, canManageGlobal }: Props) {
     <div className="cms-pages-grid">
       <aside className="cms-pages-list">
         <div className="cms-pages-list-head"><strong>Website pages</strong><span>{pages.length}</span></div>
-        <button type="button" className="cms-pages-new" onClick={() => { setPageForm(emptyPage); setSectionForm(emptySection); setMessage(""); }}>＋ Create page</button>
+        <button type="button" className="cms-pages-new" onClick={() => { setPageForm({ ...emptyPage, divisionId: canManageGlobal ? "" : divisions[0]?.id ?? "" }); setSectionForm(emptySection); setMessage(""); }}>＋ Create page</button>
         {pages.length === 0 && <p className="cms-pages-empty">No pages yet. Create the first page when you are ready.</p>}
         {pages.map(page => {
           const en = translation(page.page_translations, "en");
