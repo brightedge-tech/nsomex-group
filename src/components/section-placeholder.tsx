@@ -3,6 +3,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { MediaPlaceholder } from "@/components/media-placeholder";
 import type { Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
+import { stockImages } from "@/lib/media";
 
 type SectionKey = "about" | "projects" | "insights" | "contact";
 
@@ -23,7 +24,7 @@ export function SectionPlaceholder({ locale, section }: { locale: Locale; sectio
       </div></section>
       {section === "about" ? (
         <section className="section-wrap editorial-media-section">
-          <MediaPlaceholder label={dictionary.sections.about.imageLabel} detail={dictionary.sections.about.imageDetail} ratio="wide" />
+          <MediaPlaceholder label={dictionary.sections.about.imageLabel} detail={locale === "fr" ? "Photo illustrative libre de droits — à remplacer par un visuel NSOMEX approuvé." : "Illustrative stock photo — replace with approved NSOMEX imagery when available."} ratio="wide" imageUrl={stockImages.corporate} />
           <div className="leadership-placeholders">
             {[1, 2, 3].map((item) => (
               <MediaPlaceholder key={item} label={locale === "fr" ? "PORTRAIT DE LA DIRECTION" : "LEADERSHIP PORTRAIT"} detail={locale === "fr" ? "Profil à présenter après validation" : "Profile to be added after approval"} ratio="portrait" />
