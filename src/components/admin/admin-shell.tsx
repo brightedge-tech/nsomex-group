@@ -1,10 +1,10 @@
 "use client";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/browser";
 import { adminMessages, type AdminLocale } from "@/lib/admin-messages";
 
-type Props = { children: React.ReactNode; locale: AdminLocale; email: string };
+type Props = { children: React.ReactNode; email: string };
 const navigation = [
   { key:"dashboard", href:"/admin" }, { key:"pages", href:"/admin/pages" },
   { key:"projects", href:"/admin/projects" }, { key:"articles", href:"/admin/articles" },
@@ -12,16 +12,26 @@ const navigation = [
   { key:"enquiries", href:"/admin/enquiries" }, { key:"administrators", href:"/admin/administrators" },
 ] as const;
 
-export function AdminShell({ children, locale, email }: Props) {
-  const t = adminMessages[locale];
+export function AdminShell({ children, email }: Props) {
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const locale: AdminLocale = searchParams.get("lang") === "fr" ? "fr" : "en";
+  const t = adminMessages[locale];
+
   async function signOut() {
     const supabase = createClient();
     if (supabase) await supabase.auth.signOut();
     router.replace("/admin/login");
     router.refresh();
   }
+
+  function changeLocale(nextLocale: AdminLocale) {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("lang", nextLocale);
+    router.replace(`${pathname}?${params.toString()}`);
+  }
+
   return <div className="cms-frame">
     <aside className="cms-sidebar">
       <Link className="cms-brand" href="/admin"><span className="cms-brand-symbol">N</span><span><strong>{t.brand}</strong><small>{t.workspace}</small></span></Link>
@@ -41,7 +51,11 @@ export function AdminShell({ children, locale, email }: Props) {
         <div className="cms-breadcrumb">{t.brand}<span>/</span>{t.dashboard}</div>
         <div className="cms-user-tools">
           <div className="cms-user-email">{email}</div>
-          <div className="cms-language"><Link aria-current={locale==="en" ? "page":undefined} href={`${pathname}?lang=en`}>EN</Link><span>/</span><Link aria-current={locale==="fr" ? "page":undefined} href={`${pathname}?lang=fr`}>FR</Link></div>
+          <div className="cms-language">
+            <button aria-current={locale==="en" ? "page":undefined} onClick={()=>changeLocale("en")} type="button">EN</button>
+            <span>/</span>
+            <button aria-current={locale==="fr" ? "page":undefined} onClick={()=>changeLocale("fr")} type="button">FR</button>
+          </div>
           <button className="cms-signout" onClick={signOut} type="button">{t.signOut}</button>
         </div>
       </header>
