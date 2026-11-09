@@ -189,6 +189,18 @@ BEGIN
       USING ERRCODE = '42501';
   END IF;
 
+  IF NEW.cover_media_asset_id IS NOT NULL THEN
+    IF NOT EXISTS (
+      SELECT 1 FROM public.media_assets ma
+      WHERE ma.id = NEW.cover_media_asset_id
+        AND ma.status = 'published'
+        AND ma.division_id IS NOT DISTINCT FROM NEW.division_id
+    ) THEN
+      RAISE EXCEPTION 'Article cover media must be published and belong to the same division'
+        USING ERRCODE = '23514';
+    END IF;
+  END IF;
+
   IF NEW.status = 'published' THEN
     NEW.published_at := COALESCE(NEW.published_at, now());
   ELSE
@@ -319,6 +331,8 @@ BEGIN
   event_action := CASE
     WHEN TG_OP = 'INSERT' THEN 'created'
     WHEN NEW.status = 'published' AND OLD.status IS DISTINCT FROM 'published' THEN 'published'
+    WHEN NEW.status = 'review' AND OLD.status IS DISTINCT FROM 'review' THEN 'submitted_for_review'
+    WHEN OLD.status = 'published' AND NEW.status IS DISTINCT FROM 'published' THEN 'unpublished'
     WHEN NEW.status = 'archived' AND OLD.status IS DISTINCT FROM 'archived' THEN 'archived'
     ELSE 'updated'
   END;
