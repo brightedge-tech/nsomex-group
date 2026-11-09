@@ -440,6 +440,58 @@ CREATE TRIGGER cms_page_section_translations_revision
   AFTER INSERT OR UPDATE ON public.page_section_translations
   FOR EACH ROW EXECUTE FUNCTION public.cms_record_page_revision();
 
+
+-- Translation rows are content edits, not review/publish actions.
+CREATE OR REPLACE FUNCTION public.cms_guard_page_translation_edit()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = pg_catalog, public
+AS $function$
+DECLARE
+  parent_page_id uuid;
+  parent_division_id uuid;
+  required_permission text;
+BEGIN
+  IF TG_TABLE_NAME = 'page_translations' THEN
+    parent_page_id := NEW.page_id;
+  ELSE
+    SELECT page_id INTO parent_page_id
+    FROM public.page_sections
+    WHERE id = NEW.page_section_id;
+  END IF;
+
+  SELECT division_id INTO parent_division_id
+  FROM public.pages
+  WHERE id = parent_page_id;
+
+  IF NOT EXISTS (SELECT 1 FROM public.pages WHERE id = parent_page_id) THEN
+    RAISE EXCEPTION 'Parent page does not exist'
+      USING ERRCODE = '23503';
+  END IF;
+
+  required_permission := CASE WHEN TG_OP = 'INSERT'
+    THEN 'content.create' ELSE 'content.edit' END;
+
+  IF NOT public.cms_has_permission(required_permission, parent_division_id) THEN
+    RAISE EXCEPTION 'Insufficient permission to edit page translations'
+      USING ERRCODE = '42501';
+  END IF;
+
+  RETURN NEW;
+END;
+$function$;
+
+CREATE TRIGGER cms_page_translations_edit_guard
+  BEFORE INSERT OR UPDATE ON public.page_translations
+  FOR EACH ROW EXECUTE FUNCTION public.cms_guard_page_translation_edit();
+
+CREATE TRIGGER cms_page_section_translations_edit_guard
+  BEFORE INSERT OR UPDATE ON public.page_section_translations
+  FOR EACH ROW EXECUTE FUNCTION public.cms_guard_page_translation_edit();
+
+REVOKE ALL ON FUNCTION public.cms_guard_page_translation_edit() FROM PUBLIC, anon, authenticated;
+
 -- Editing any part of a published page removes it from public delivery until republished.
 -- This avoids silently changing live content without a fresh publish action.
 CREATE OR REPLACE FUNCTION public.cms_unpublish_page_after_child_edit()
