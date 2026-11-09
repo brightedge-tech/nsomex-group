@@ -199,14 +199,6 @@ CREATE POLICY "Public can read published categories"
       SELECT 1 FROM public.divisions d
       WHERE d.id = division_id AND d.status = 'published'
     )
-    AND (
-      parent_category_id IS NULL
-      OR EXISTS (
-        SELECT 1 FROM public.categories parent
-        WHERE parent.id = parent_category_id
-          AND parent.status = 'published'
-      )
-    )
   );
 
 CREATE POLICY "Public can read published category translations"
