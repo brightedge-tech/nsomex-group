@@ -46,14 +46,14 @@ export function CoreContentWorkspace({ divisions }: Props) {
   const categories = units.flatMap(unit => unit.categories ?? []);
   const services = categories.flatMap(category => category.services ?? []);
   const parentOptions = useMemo(() => {
-    if (form.kind === "business_unit") return units.map(item => ({ id: item.id, label: value(item.content_translations, locale, "name") || item.code }));
+    if (form.kind === "business_unit") return division ? [{ id: division.id, label: value(division.content_translations, locale, "name") || division.code }] : [];
     if (form.kind === "category") return units.map(item => ({ id: item.id, label: value(item.content_translations, locale, "name") || item.code }));
     if (form.kind === "service") return categories.map(item => ({ id: item.id, label: value(item.content_translations, locale, "name") || item.code }));
     return [];
   }, [form.kind, units, categories, locale]);
 
   function chooseKind(kind: CoreContentKind) {
-    setForm(emptyForm(kind, kind === "division" ? "" : kind === "business_unit" || kind === "category" ? divisionId : categories[0]?.id ?? ""));
+    setForm(emptyForm(kind, kind === "division" ? "" : kind === "business_unit" ? divisionId : kind === "category" ? units[0]?.id ?? "" : categories[0]?.id ?? ""));
     setMessage("");
   }
 
