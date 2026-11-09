@@ -29,7 +29,7 @@ export function ArticlesWorkspace({articles,categories,divisions,media,canManage
   workflow:"Publication",draft:"Brouillon",review:"Soumettre à validation",publish:"Publier",archive:"Archiver",backDraft:"Remettre en brouillon",
   saved:"Article enregistré en anglais et en français.",categorySaved:"Catégorie enregistrée.",status:"Statut",mediaHint:"Seuls les médias publiés de la même division sont proposés.",
   categoryManager:"Gérer les catégories",newCategory:"＋ Nouvelle catégorie",categoryName:"Nom de catégorie",categorySlug:"Identifiant de catégorie",
-  description:"Description",saveCategory:"Enregistrer la catégorie",noCategories:"Aucune catégorie n’a encore été créée.",categoryStatus:"Statut de la catégorie",
+  description:"Description",saveCategory:"Enregistrer la catégorie",noCategories:"Aucune catégorie n’a encore été créée.",categoryStatus:"Statut de la catégorie",editCategory:"Modifier",
   groupOnly:"Les catégories sont gérées par le super administrateur.",choose:"Choisir…",messageError:"Une erreur est survenue.",
  }:{
   articles:"News & articles",newArticle:"＋ New article",none:"No articles yet. Add verified company content when ready.",create:"Create an article",edit:"Edit article",
@@ -39,7 +39,7 @@ export function ArticlesWorkspace({articles,categories,divisions,media,canManage
   workflow:"Publishing",draft:"Draft",review:"Submit for review",publish:"Publish",archive:"Archive",backDraft:"Return to draft",
   saved:"Article saved in English and French.",categorySaved:"Category saved.",status:"Status",mediaHint:"Only published media from the same division is available.",
   categoryManager:"Manage categories",newCategory:"＋ New category",categoryName:"Category name",categorySlug:"Category slug",
-  description:"Description",saveCategory:"Save category",noCategories:"No categories have been created yet.",categoryStatus:"Category status",
+  description:"Description",saveCategory:"Save category",noCategories:"No categories have been created yet.",categoryStatus:"Category status",editCategory:"Edit",
   groupOnly:"Categories are managed by the super administrator.",choose:"Choose…",messageError:"Something went wrong.",
  };
  const [form,setForm]=useState({...emptyArticle,divisionId:canManageGlobal?"":divisions[0]?.id??""});
