@@ -2,15 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDictionary } from "@/i18n/dictionaries";
-import { isLocale, locales } from "@/i18n/config";
+import { isLocale } from "@/i18n/config";
 import { divisions, getDivision } from "@/lib/site";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
-export function generateStaticParams() {
-  return locales.flatMap((locale) => divisions.map((division) => ({ locale, slug: division.slug })));
+export function generateStaticParams({ params }: { params: { locale: string } }) {
+  if (!isLocale(params.locale)) return [];
+  return divisions.map((division) => ({ slug: division.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
