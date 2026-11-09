@@ -259,8 +259,9 @@ BEGIN
   row_snapshot := to_jsonb(NEW);
   IF TG_OP = 'INSERT' THEN
     action_key := 'created';
-  ELSIF TG_TABLE_NAME <> 'content_translations'
-      AND NEW.is_active = false AND OLD.is_active = true THEN
+  ELSIF TG_TABLE_NAME = 'content_translations' THEN
+    action_key := 'updated';
+  ELSIF NEW.is_active = false AND OLD.is_active = true THEN
     action_key := 'archived';
   ELSE
     action_key := 'updated';
@@ -288,6 +289,33 @@ END;
 $function$;
 
 REVOKE ALL ON FUNCTION public.cms_capture_core_content_change() FROM PUBLIC, anon, authenticated;
+
+CREATE OR REPLACE FUNCTION public.cms_set_core_content_updated_at()
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path = pg_catalog
+AS $function$
+BEGIN
+  NEW.updated_at := now();
+  RETURN NEW;
+END;
+$function$;
+
+CREATE TRIGGER cms_divisions_updated_at
+  BEFORE UPDATE ON public.divisions
+  FOR EACH ROW EXECUTE FUNCTION public.cms_set_core_content_updated_at();
+CREATE TRIGGER cms_business_units_updated_at
+  BEFORE UPDATE ON public.business_units
+  FOR EACH ROW EXECUTE FUNCTION public.cms_set_core_content_updated_at();
+CREATE TRIGGER cms_categories_updated_at
+  BEFORE UPDATE ON public.categories
+  FOR EACH ROW EXECUTE FUNCTION public.cms_set_core_content_updated_at();
+CREATE TRIGGER cms_services_updated_at
+  BEFORE UPDATE ON public.services
+  FOR EACH ROW EXECUTE FUNCTION public.cms_set_core_content_updated_at();
+CREATE TRIGGER cms_translations_updated_at
+  BEFORE UPDATE ON public.content_translations
+  FOR EACH ROW EXECUTE FUNCTION public.cms_set_core_content_updated_at();
 
 CREATE TRIGGER cms_divisions_revision_audit
   AFTER INSERT OR UPDATE ON public.divisions
