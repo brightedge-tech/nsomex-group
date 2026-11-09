@@ -18,10 +18,7 @@ export default async function AdminDashboard({ searchParams }: Props) {
   const t = adminMessages[locale];
   const supabase = await createClient();
   const { data: { user } } = await supabase!.auth.getUser();
-  const [{ data: profile }, { data: assignments }] = await Promise.all([
-    supabase!.from("cms_admin_profiles").select("display_name").eq("user_id", user!.id).maybeSingle(),
-    supabase!.from("cms_role_assignments").select("role, division_id").eq("user_id", user!.id).is("revoked_at", null),
-  ]);
+  const { data: assignments } = await supabase!.from("cms_role_assignments").select("role, division_id").eq("user_id", user!.id).is("revoked_at", null);
   const ids = [...new Set((assignments ?? []).map(item => item.division_id).filter((id): id is string => Boolean(id)))];
   const { data: divisions } = ids.length
     ? await supabase!.from("divisions").select("id, name").in("id", ids)
