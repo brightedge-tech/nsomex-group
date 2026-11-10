@@ -75,8 +75,8 @@ export default async function AdminModulePage({params}:{params:Promise<{module:s
       projectQuery = projectQuery.in("division_id",assignedDivisionIds);
       mediaQuery = mediaQuery.in("division_id",assignedDivisionIds);
     }
-    const [{data:divisions},{data:units},{data:projects},{data:media}] = await Promise.all([
-      divisionQuery,unitQuery,projectQuery,mediaQuery,
+    const [{data:divisions},{data:units},{data:services},{data:projects},{data:media}] = await Promise.all([
+      divisionQuery,unitQuery,serviceQuery,projectQuery,mediaQuery,
     ]);
     return <section>
       <div className="cms-page-heading"><div><p className="cms-eyebrow">CMS MODULE</p><h1>{item.title}</h1><p>{item.description}</p></div></div>
@@ -84,6 +84,7 @@ export default async function AdminModulePage({params}:{params:Promise<{module:s
         projects={(projects ?? []) as never}
         divisions={(divisions ?? []) as never}
         businessUnits={(units ?? []) as never}
+        services={(services ?? []) as never}
         mediaAssets={(media ?? []) as never}
         canManageGlobal={canManageGlobal}
       />
