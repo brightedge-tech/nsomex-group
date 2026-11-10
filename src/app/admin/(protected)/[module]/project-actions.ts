@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 
 type Result = { ok: true; id: string } | { ok: false; error: string };
 type ProjectInput = {
-  id?: string; divisionId: string; businessUnitId: string; slug: string; projectType: string;
+  id?: string; divisionId: string; businessUnitId: string; serviceId: string; slug: string; projectType: string;
   locationName: string; city: string; region: string; countryCode: string;
   startedOn: string; completedOn: string; isFeatured: boolean; sortOrder: number;
   enTitle: string; frTitle: string; enSummary: string; frSummary: string;
