@@ -7,7 +7,8 @@ import { attachMediaToProject, changeMediaStatus, changeProjectStatus, registerM
 
 type Translation={locale_code:string;title:string;summary:string|null;description:string|null};
 type Division={id:string;code:string};
-type BusinessUnit={id:string;division_id:string;code:string};\ntype Service={id:string;slug:string;category_id:string;categories:{business_unit_id:string}|{business_unit_id:string}[]|null};
+type BusinessUnit={id:string;division_id:string;code:string};
+type Service={id:string;slug:string;category_id:string;categories:{business_unit_id:string}|{business_unit_id:string}[]|null};
 type Project={
   id:string;division_id:string;business_unit_id:string|null;service_id:string|null;slug:string;project_type:string;status:"draft"|"review"|"published"|"archived";
   location_name:string|null;city:string|null;region:string|null;country_code:string|null;started_on:string|null;completed_on:string|null;
@@ -52,7 +53,8 @@ export function ProjectsMediaWorkspace({projects,divisions,businessUnits,service
   const [busy,setBusy]=useState(false);
   const [uploading,setUploading]=useState(false);
   const selected=useMemo(()=>projects.find(p=>p.id===form.id),[projects,form.id]);
-  const units=businessUnits.filter(unit=>unit.division_id===form.divisionId);\n  const serviceOptions=services.filter(service=>{const category=Array.isArray(service.categories)?service.categories[0]:service.categories;return Boolean(category&&category.business_unit_id===form.businessUnitId);});
+  const units=businessUnits.filter(unit=>unit.division_id===form.divisionId);
+  const serviceOptions=services.filter(service=>{const category=Array.isArray(service.categories)?service.categories[0]:service.categories;return Boolean(category&&category.business_unit_id===form.businessUnitId);});
   const availableMedia=mediaAssets.filter(asset=>asset.division_id===form.divisionId);
 
   function editProject(project:Project){
