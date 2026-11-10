@@ -18,7 +18,15 @@ export default async function HomePage({ params }: Props) {
   return (
     <main>
       <SiteHeader locale={locale} />
-      <section className="hero" style={{ backgroundImage: `linear-gradient(90deg, rgba(5, 20, 38, .82) 0%, rgba(5, 25, 47, .62) 42%, rgba(5, 25, 47, .22) 100%), url("${stockImages.heroSkyline}")` }}>
+      <section
+        className="hero"
+        style={{
+          // Put the approved globe-and-skyline composition at
+          // public/images/homepage-hero.jpg. The existing skyline remains
+          // as a fallback until that image is added.
+          backgroundImage: `linear-gradient(90deg, rgba(5, 20, 38, .72) 0%, rgba(5, 25, 47, .40) 55%, rgba(5, 25, 47, .12) 100%), url("/images/homepage-hero.jpg"), url("${stockImages.heroSkyline}")`,
+        }}
+      >
         <div className="hero-grid" aria-hidden="true" />
         <div className="hero-content">
           <p className="eyebrow"><span className="eyebrow-line" /> {t.eyebrow}</p>
@@ -29,7 +37,6 @@ export default async function HomePage({ params }: Props) {
             <Link className="text-link" href={`/${locale}/about`}>{t.discover} <span aria-hidden="true">→</span></Link>
           </div>
         </div>
-        <div className="hero-aside" aria-hidden="true"><img src="https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?auto=format&fit=crop&w=1100&q=90" alt="" /><span className="globe-orbit globe-orbit-one" /><span className="globe-orbit globe-orbit-two" /></div>
         <div className="hero-footer"><span>{t.capabilities}</span><span>{t.world}</span></div>
       </section>
       <section className="intro section-wrap">
