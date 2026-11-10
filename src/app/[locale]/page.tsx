@@ -18,7 +18,7 @@ export default async function HomePage({ params }: Props) {
   return (
     <main>
       <SiteHeader locale={locale} />
-      <section className="hero">
+      <section className="hero" style={{ backgroundImage: `linear-gradient(90deg, rgba(5, 20, 38, .82) 0%, rgba(5, 25, 47, .62) 42%, rgba(5, 25, 47, .22) 100%), url("${stockImages.heroSkyline}")` }}>
         <div className="hero-grid" aria-hidden="true" />
         <div className="hero-content">
           <p className="eyebrow"><span className="eyebrow-line" /> {t.eyebrow}</p>
