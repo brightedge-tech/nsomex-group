@@ -8,26 +8,27 @@ import { attachMediaToProject, changeMediaStatus, changeProjectStatus, registerM
 type Translation={locale_code:string;title:string;summary:string|null;description:string|null};
 type Division={id:string;code:string};
 type BusinessUnit={id:string;division_id:string;code:string};
+type Service={id:string;slug:string;category_id:string;categories:{business_unit_id:string}|{business_unit_id:string}[]|null};
 type Project={
-  id:string;division_id:string;business_unit_id:string|null;slug:string;project_type:string;status:"draft"|"review"|"published"|"archived";
+  id:string;division_id:string;business_unit_id:string|null;service_id:string|null;slug:string;project_type:string;status:"draft"|"review"|"published"|"archived";
   location_name:string|null;city:string|null;region:string|null;country_code:string|null;started_on:string|null;completed_on:string|null;
   is_featured:boolean;sort_order:number;project_translations:Translation[];
 };
 type MediaAsset={id:string;division_id:string;object_path:string;original_filename:string;mime_type:string;byte_size:number;status:"draft"|"published"|"archived";created_at:string};
-type Props={projects:Project[];divisions:Division[];businessUnits:BusinessUnit[];mediaAssets:MediaAsset[];canManageGlobal:boolean};
+type Props={projects:Project[];divisions:Division[];businessUnits:BusinessUnit[];services:Service[];mediaAssets:MediaAsset[];canManageGlobal:boolean};
 const blank={
-  id:undefined as string|undefined,divisionId:"",businessUnitId:"",slug:"",projectType:"general",locationName:"",city:"",region:"",countryCode:"",
+  id:undefined as string|undefined,divisionId:"",businessUnitId:"",serviceId:"",slug:"",projectType:"general",locationName:"",city:"",region:"",countryCode:"",
   startedOn:"",completedOn:"",isFeatured:false,sortOrder:0,enTitle:"",frTitle:"",enSummary:"",frSummary:"",enDescription:"",frDescription:"",
 };
 function tr(items:Translation[],locale:string){return items.find(item=>item.locale_code===locale);}
 
-export function ProjectsMediaWorkspace({projects,divisions,businessUnits,mediaAssets,canManageGlobal}:Props){
+export function ProjectsMediaWorkspace({projects,divisions,businessUnits,services,mediaAssets,canManageGlobal}:Props){
   const router=useRouter();
   const search=useSearchParams();
   const fr=search.get("lang")==="fr";
   const t=fr?{
     projects:"Projets",newProject:"＋ Nouveau projet",edit:"Modifier le projet",create:"Créer un projet",none:"Aucun projet. Ajoutez un projet vérifié lorsque vous êtes prêt.",
-    division:"Division",unit:"Unité commerciale (facultatif)",slug:"Identifiant URL",type:"Type de projet",location:"Lieu",city:"Ville",region:"Région",country:"Code pays (ISO)",start:"Date de début",end:"Date d’achèvement",
+    division:"Division",unit:"Unité commerciale (facultatif)",service:"Service associé (facultatif)",slug:"Identifiant URL",type:"Type de projet",location:"Lieu",city:"Ville",region:"Région",country:"Code pays (ISO)",start:"Date de début",end:"Date d’achèvement",
     featured:"Mettre en avant",order:"Ordre d’affichage",en:"Anglais",fr:"Français",title:"Titre",summary:"Résumé",description:"Description",save:"Enregistrer le projet",
     workflow:"Publication",draft:"Brouillon",review:"Soumettre à validation",published:"Publié",archived:"Archivé",publish:"Publier",archive:"Archiver",reset:"Brouillon",
     media:"Bibliothèque multimédia",upload:"Téléverser un fichier",uploadHint:"Images, vidéo MP4 ou PDF · 50 Mo maximum",file:"Choisir un fichier",uploading:"Téléversement…",noMedia:"Aucun média téléversé.",
@@ -36,7 +37,7 @@ export function ProjectsMediaWorkspace({projects,divisions,businessUnits,mediaAs
     groupWide:"Toutes les divisions",selectDivision:"Sélectionner une division",
   }:{
     projects:"Projects",newProject:"＋ New project",edit:"Edit project",create:"Create a project",none:"No projects yet. Add a verified project when you are ready.",
-    division:"Division",unit:"Business unit (optional)",slug:"URL slug",type:"Project type",location:"Location name",city:"City",region:"Region",country:"Country code (ISO)",start:"Start date",end:"Completion date",
+    division:"Division",unit:"Business unit (optional)",service:"Related service (optional)",slug:"URL slug",type:"Project type",location:"Location name",city:"City",region:"Region",country:"Country code (ISO)",start:"Start date",end:"Completion date",
     featured:"Feature this project",order:"Display order",en:"English",fr:"French",title:"Title",summary:"Summary",description:"Description",save:"Save project",
     workflow:"Publishing",draft:"Draft",review:"Submit for review",published:"Published",archived:"Archived",publish:"Publish",archive:"Archive",reset:"Return to draft",
     media:"Media library",upload:"Upload a file",uploadHint:"Images, MP4 video or PDF · 50 MB maximum",file:"Choose file",uploading:"Uploading…",noMedia:"No media uploaded yet.",
@@ -53,12 +54,13 @@ export function ProjectsMediaWorkspace({projects,divisions,businessUnits,mediaAs
   const [uploading,setUploading]=useState(false);
   const selected=useMemo(()=>projects.find(p=>p.id===form.id),[projects,form.id]);
   const units=businessUnits.filter(unit=>unit.division_id===form.divisionId);
+  const serviceOptions=services.filter(service=>{const category=Array.isArray(service.categories)?service.categories[0]:service.categories;return Boolean(category&&category.business_unit_id===form.businessUnitId);});
   const availableMedia=mediaAssets.filter(asset=>asset.division_id===form.divisionId);
 
   function editProject(project:Project){
     const en=tr(project.project_translations,"en"),fr=tr(project.project_translations,"fr");
     setForm({
-      id:project.id,divisionId:project.division_id,businessUnitId:project.business_unit_id??"",slug:project.slug,projectType:project.project_type,
+      id:project.id,divisionId:project.division_id,businessUnitId:project.business_unit_id??"",serviceId:project.service_id??"",slug:project.slug,projectType:project.project_type,
       locationName:project.location_name??"",city:project.city??"",region:project.region??"",countryCode:project.country_code??"",
       startedOn:project.started_on??"",completedOn:project.completed_on??"",isFeatured:project.is_featured,sortOrder:project.sort_order,
       enTitle:en?.title??"",frTitle:fr?.title??"",enSummary:en?.summary??"",frSummary:fr?.summary??"",enDescription:en?.description??"",frDescription:fr?.description??"",
@@ -125,7 +127,8 @@ export function ProjectsMediaWorkspace({projects,divisions,businessUnits,mediaAs
             <label>{t.division}<select required value={form.divisionId} disabled={!canManageGlobal&&divisions.length===1} onChange={e=>setForm({...form,divisionId:e.target.value,businessUnitId:""})}>
               {divisions.map(d=><option key={d.id} value={d.id}>{d.code}</option>)}
             </select></label>
-            <label>{t.unit}<select value={form.businessUnitId} onChange={e=>setForm({...form,businessUnitId:e.target.value})}><option value="">—</option>{units.map(u=><option key={u.id} value={u.id}>{u.code}</option>)}</select></label>
+            <label>{t.unit}<select value={form.businessUnitId} onChange={e=>setForm({...form,businessUnitId:e.target.value,serviceId:""})}><option value="">—</option>{units.map(u=><option key={u.id} value={u.id}>{u.code}</option>)}</select></label>
+            <label>{t.service}<select value={form.serviceId} disabled={!form.businessUnitId} onChange={e=>setForm({...form,serviceId:e.target.value})}><option value="">—</option>{serviceOptions.map(service=><option key={service.id} value={service.id}>{service.slug}</option>)}</select></label>
           </div>
           <div className="cms-editor-two">
             <label>{t.slug}<input required pattern="[a-z0-9]+(-[a-z0-9]+)*" value={form.slug} onChange={e=>setForm({...form,slug:e.target.value})} placeholder="project-name"/></label>

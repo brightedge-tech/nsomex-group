@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 
 type Result = { ok: true; id: string } | { ok: false; error: string };
 type ProjectInput = {
-  id?: string; divisionId: string; businessUnitId: string; slug: string; projectType: string;
+  id?: string; divisionId: string; businessUnitId: string; serviceId: string; slug: string; projectType: string;
   locationName: string; city: string; region: string; countryCode: string;
   startedOn: string; completedOn: string; isFeatured: boolean; sortOrder: number;
   enTitle: string; frTitle: string; enSummary: string; frSummary: string;
@@ -44,9 +44,20 @@ export async function saveProject(input: ProjectInput): Promise<Result> {
   if (!enTitle || !frTitle) return {ok:false,error:"Add both English and French project titles."};
   if (input.startedOn && input.completedOn && input.completedOn < input.startedOn) return {ok:false,error:"The completion date cannot be earlier than the start date."};
 
+  const businessUnitId = clean(input.businessUnitId,80) || null;
+  const serviceId = clean(input.serviceId,80) || null;
+  if (serviceId && !businessUnitId) return {ok:false,error:"Choose a business unit before linking a service."};
+  if (serviceId) {
+    const {data:service,error:serviceError}=await supabase.from("services").select("id,categories(business_unit_id)").eq("id",serviceId).single();
+    const category=Array.isArray(service?.categories)?service.categories[0]:service?.categories;
+    if(serviceError||!service||!category||category.business_unit_id!==businessUnitId) return {ok:false,error:"Choose a service that belongs to the selected business unit."};
+    const {data:unit,error:unitError}=await supabase.from("business_units").select("division_id").eq("id",businessUnitId).single();
+    if(unitError||!unit||unit.division_id!==divisionId) return {ok:false,error:"The selected business unit does not belong to this division."};
+  }
   const values = {
     division_id:divisionId,
-    business_unit_id:clean(input.businessUnitId,80) || null,
+    business_unit_id:businessUnitId,
+    service_id:serviceId,
     slug, project_type:projectType,
     location_name:clean(input.locationName,200) || null,
     city:clean(input.city,120) || null,
