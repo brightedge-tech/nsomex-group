@@ -65,7 +65,7 @@ export default async function AdminModulePage({params}:{params:Promise<{module:s
     }
     let divisionQuery = supabase.from("divisions").select("id,code").eq("is_active",true).order("sort_order");
     let unitQuery = supabase.from("business_units").select("id,division_id,code").eq("is_active",true).order("sort_order");\n    let serviceQuery = supabase.from("services").select("id,slug,category_id,categories(business_unit_id)").eq("is_active",true).order("sort_order");
-    let projectQuery = supabase.from("projects").select("id,division_id,business_unit_id,slug,project_type,status,location_name,city,region,country_code,started_on,completed_on,is_featured,sort_order,project_translations(locale_code,title,summary,description)").order("updated_at",{ascending:false});
+    let projectQuery = supabase.from("projects").select("id,division_id,business_unit_id,service_id,slug,project_type,status,location_name,city,region,country_code,started_on,completed_on,is_featured,sort_order,project_translations(locale_code,title,summary,description)").order("updated_at",{ascending:false});
     let mediaQuery = supabase.from("media_assets").select("id,division_id,object_path,original_filename,mime_type,byte_size,status,created_at").order("created_at",{ascending:false});
     if (!canManageGlobal) {
       divisionQuery = divisionQuery.in("id",assignedDivisionIds);
