@@ -2,6 +2,8 @@
 // Each source is published under the Unsplash License; photographer and source-page details are retained for reference.
 
 export const stockImages = {
+  // Vinícius Costa — https://unsplash.com/photos/modern-glass-skyscrapers-rise-against-a-clear-blue-sky-HlF2gphYcss
+  heroSkyline: "https://images.unsplash.com/photo-1775260014618-e600e7937384?auto=format&fit=crop&w=2400&q=85",
   // Eric Stoynov — https://unsplash.com/photos/city-buildings-at-dusk-with-illuminated-windows-XVINQJOVpbA
   corporate: "https://images.unsplash.com/photo-1775521206281-758df02df428?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000",
   // Eric Stoynov — https://unsplash.com/photos/two-server-racks-filled-with-electronic-components-and-wires-k27hkqXuveo
