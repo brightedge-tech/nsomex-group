@@ -40,7 +40,7 @@ export function AdminShell({ children, email }: Props) {
         {navigation.map(item => {
           const active = item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href);
           return <Link aria-current={active ? "page" : undefined} className={active ? "cms-nav-link is-active" : "cms-nav-link"} href={item.href} key={item.key}>
-            <span className="cms-nav-dot" />{("label" in item && item.label) ? item.label : (t as Record<string,string>)[item.key]}
+            <span className="cms-nav-dot" />{("label" in item && item.label) ? (locale === "fr" ? "Photos de la page d’accueil" : item.label) : t[item.key]}
           </Link>;
         })}
       </nav>
