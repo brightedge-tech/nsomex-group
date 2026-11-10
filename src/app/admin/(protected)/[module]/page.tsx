@@ -3,6 +3,7 @@ import { PagesWorkspace } from "@/components/admin/pages-workspace";
 import { CoreContentWorkspace } from "@/components/admin/core-content-workspace";
 import { ProjectsMediaWorkspace } from "@/components/admin/projects-media-workspace";
 import { ArticlesWorkspace } from "@/components/admin/articles-workspace";
+import { LandingPagePhotosWorkspace } from "@/components/admin/landing-page-photos-workspace";
 import { createClient } from "@/lib/supabase/server";
 
 const moduleInfo: Record<string,{title:string;description:string}> = {
@@ -11,6 +12,7 @@ const moduleInfo: Record<string,{title:string;description:string}> = {
   projects:{title:"Projects portfolio",description:"Approved project records, translations and associated media will be managed here."},
   articles:{title:"News & insights",description:"News, insights and announcements will be drafted, reviewed and published here."},
   media:{title:"Media library",description:"Private media uploads, metadata and published asset delivery will be managed here."},
+  "landing-photos":{title:"Landing Page Photos",description:"Upload and replace the global images displayed on the public homepage."},
   careers:{title:"Careers",description:"Job openings and confidential applications will be managed here."},
   enquiries:{title:"Contact enquiries",description:"Messages submitted through the corporate contact form will be reviewed here."},
   administrators:{title:"Administrator management",description:"Invited CMS users, division assignments and role changes will be managed here."},
@@ -83,6 +85,32 @@ export default async function AdminModulePage({params}:{params:Promise<{module:s
         mediaAssets={(media ?? []) as never}
         canManageGlobal={canManageGlobal}
       />
+    </section>;
+  }
+
+  if(module === "landing-photos") {
+    const supabase = await createClient();
+    if (!supabase) notFound();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) notFound();
+    const { data: roles } = await supabase
+      .from("cms_role_assignments")
+      .select("role")
+      .eq("user_id", user.id)
+      .is("revoked_at", null);
+    const canManageGlobal = Boolean(roles?.some(role => role.role === "super_admin"));
+    if (!canManageGlobal) {
+      return <section><div className="cms-notice">Landing page photos are global website assets and can only be managed by a super administrator.</div></section>;
+    }
+    const { data: assets, error } = await supabase
+      .from("landing_page_media")
+      .select("slot,object_path,original_filename,mime_type,byte_size,updated_at")
+      .order("slot");
+    return <section>
+      <div className="cms-page-heading"><div><p className="cms-eyebrow">CMS MODULE</p><h1>{item.title}</h1><p>{item.description}</p></div></div>
+      {error
+        ? <div className="cms-notice">The landing page photo storage has not been enabled in the database yet. Apply migration 20261110100000_create_landing_page_media.sql, then refresh this page.</div>
+        : <LandingPagePhotosWorkspace assets={(assets ?? []) as never} />}
     </section>;
   }
 

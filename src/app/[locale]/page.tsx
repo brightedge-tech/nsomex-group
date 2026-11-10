@@ -7,6 +7,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MediaPlaceholder } from "@/components/media-placeholder";
 import { divisionImages, stockImages } from "@/lib/media";
+import { createClient } from "@/lib/supabase/server";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -15,6 +16,16 @@ export default async function HomePage({ params }: Props) {
   if (!isLocale(rawLocale)) notFound();
   const locale = rawLocale;
   const t = getDictionary(locale).home;
+  const supabase = await createClient();
+  const { data: landingAssets } = supabase
+    ? await supabase.from("landing_page_media").select("slot,object_path")
+    : { data: [] as { slot: string; object_path: string }[] };
+  const landingImages: Record<string, string> = {};
+  for (const asset of landingAssets ?? []) {
+    landingImages[asset.slot] = supabase!.storage.from("nsomex-website").getPublicUrl(asset.object_path).data.publicUrl;
+  }
+  const heroImage = landingImages.hero ?? stockImages.heroSkyline;
+  const corporateImage = landingImages.corporate ?? stockImages.corporate;
   return (
     <main>
       <SiteHeader locale={locale} />
@@ -24,7 +35,7 @@ export default async function HomePage({ params }: Props) {
           // Put the approved globe-and-skyline composition at
           // public/images/homepage-hero.jpg. The existing skyline remains
           // as a fallback until that image is added.
-          backgroundImage: `linear-gradient(90deg, rgba(5, 20, 38, .72) 0%, rgba(5, 25, 47, .40) 55%, rgba(5, 25, 47, .12) 100%), url("/images/homepage-hero.jpg"), url("${stockImages.heroSkyline}")`,
+          backgroundImage: `linear-gradient(90deg, rgba(5, 20, 38, .72) 0%, rgba(5, 25, 47, .40) 55%, rgba(5, 25, 47, .12) 100%), url("${heroImage}")`,
         }}
       >
         <div className="hero-grid" aria-hidden="true" />
@@ -47,7 +58,7 @@ export default async function HomePage({ params }: Props) {
         </div>
       </section>
       <section className="section-wrap home-media-section">
-        <MediaPlaceholder label={getDictionary(locale).media.groupVisual} detail={locale === "fr" ? "Photo illustrative libre de droits — à remplacer par un visuel NSOMEX approuvé." : "Illustrative stock photo — replace with approved NSOMEX imagery when available."} ratio="wide" imageUrl={stockImages.corporate} />
+        <MediaPlaceholder label={getDictionary(locale).media.groupVisual} detail={locale === "fr" ? "Photo illustrative libre de droits — à remplacer par un visuel NSOMEX approuvé." : "Illustrative stock photo — replace with approved NSOMEX imagery when available."} ratio="wide" imageUrl={corporateImage} />
       </section>
       <section className="divisions-section">
         <div className="section-wrap">
@@ -56,7 +67,7 @@ export default async function HomePage({ params }: Props) {
             {divisions.map((division) => (
               <article className="division-card" key={division.slug}>
                 <div className="division-card-top"><span className="division-number">{division.number}</span><span className="card-arrow" aria-hidden="true">↗</span></div>
-                <MediaPlaceholder className="home-division-media" label={`${division.name} / illustrative stock image`} detail={locale === "fr" ? "Image illustrative — pas une photo de projet NSOMEX." : "Illustrative stock image — not an NSOMEX project photograph."} ratio="landscape" imageUrl={divisionImages[division.slug]} />
+                <MediaPlaceholder className="home-division-media" label={`${division.name} / illustrative stock image`} detail={locale === "fr" ? "Image illustrative — pas une photo de projet NSOMEX." : "Illustrative stock image — not an NSOMEX project photograph."} ratio="landscape" imageUrl={landingImages[division.slug] ?? divisionImages[division.slug]} />
                 <h3>{division.name}</h3><p>{division.summary[locale]}</p>
                 <ul>{division.focus.slice(0, 3).map((item) => <li key={item.slug}>{item.name[locale]}</li>)}</ul>
                 <Link className="card-link" href={`/${locale}/divisions/${division.slug}`}>{t.exploreDivision} <span aria-hidden="true">→</span></Link>

@@ -8,7 +8,7 @@ type Props = { children: React.ReactNode; email: string };
 const navigation = [
   { key:"dashboard", href:"/admin" }, { key:"catalogue", href:"/admin/catalogue" }, { key:"pages", href:"/admin/pages" },
   { key:"projects", href:"/admin/projects" }, { key:"articles", href:"/admin/articles" },
-  { key:"media", href:"/admin/media" }, { key:"careers", href:"/admin/careers" },
+  { key:"media", href:"/admin/media" }, { key:"landingPhotos", href:"/admin/landing-photos" }, { key:"careers", href:"/admin/careers" },
   { key:"enquiries", href:"/admin/enquiries" }, { key:"administrators", href:"/admin/administrators" },
 ] as const;
 
@@ -40,7 +40,7 @@ export function AdminShell({ children, email }: Props) {
         {navigation.map(item => {
           const active = item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href);
           return <Link aria-current={active ? "page" : undefined} className={active ? "cms-nav-link is-active" : "cms-nav-link"} href={item.href} key={item.key}>
-            <span className="cms-nav-dot" />{t[item.key]}{item.href !== "/admin" && <span className="cms-nav-soon">·</span>}
+            <span className="cms-nav-dot" />{item.key === "landingPhotos" ? (locale === "fr" ? "Photos de la page d’accueil" : "Landing page photos") : t[item.key]}
           </Link>;
         })}
       </nav>

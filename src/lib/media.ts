@@ -1,11 +1,9 @@
-// Homepage assets are global; division images are independent and replaceable.
+// Global homepage defaults remain visible until replaced in the Landing Page Photos CMS.
 export const stockImages = {
-  // Add the approved globe-and-skyline composite at public/images/homepage-hero.jpg.
-  heroSkyline: "/images/homepage-hero.jpg",
-  // Add the approved NSOMEX meeting photo at public/images/homepage-corporate.jpg.
-  corporate: "/images/homepage-corporate.jpg",
+  heroSkyline: "https://images.unsplash.com/photo-1775260014618-e600e7937384?auto=format&fit=crop&w=2400&q=85",
+  corporate: "https://images.unsplash.com/photo-1775521206281-758df02df428?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000",
   technology: "https://images.unsplash.com/photo-1775519520461-6b6e068d9250?auto=format&fit=crop&fm=jpg&ixid=NHwxM3JkZDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000",
-  engineering: "https://images.unsplash.com/photo-1757436382135-5cb8e5cbcda5?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000",
+  engineering: "https://images.unsplash.com/photo-1757436382135-5cb8e5cbcda5?auto=format&fit=crop&fm=jpg&ixid=M3wxA3JkZDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000",
   renewableEnergy: "https://images.unsplash.com/photo-1771178301028-49a922aefccd?auto=format&fit=crop&fm=jpg&ixid=NHwxMJA3fDA%3D&ixlib=rb-4.1.0&q=60&w=3000",
   globalBusiness: "https://images.unsplash.com/photo-1774199102899-db6a49abb42b?auto=format&fit=crop&fm=jpg&ixid=NHwxMJA3fDA%3D&ixlib=rb-4.1.0&q=60&w=3000",
 } as const;
