@@ -128,6 +128,7 @@ export function ProjectsMediaWorkspace({projects,divisions,businessUnits,service
               {divisions.map(d=><option key={d.id} value={d.id}>{d.code}</option>)}
             </select></label>
             <label>{t.unit}<select value={form.businessUnitId} onChange={e=>setForm({...form,businessUnitId:e.target.value,serviceId:""})}><option value="">—</option>{units.map(u=><option key={u.id} value={u.id}>{u.code}</option>)}</select></label>
+            <label>{t.service}<select value={form.serviceId} disabled={!form.businessUnitId} onChange={e=>setForm({...form,serviceId:e.target.value})}><option value="">—</option>{serviceOptions.map(service=><option key={service.id} value={service.id}>{service.slug}</option>)}</select></label>
           </div>
           <div className="cms-editor-two">
             <label>{t.slug}<input required pattern="[a-z0-9]+(-[a-z0-9]+)*" value={form.slug} onChange={e=>setForm({...form,slug:e.target.value})} placeholder="project-name"/></label>
