@@ -42,6 +42,7 @@ export function LandingPagePhotosWorkspace({ assets }: Props) {
     unavailable: "Supabase is not configured.", failed: "Upload or save failed.",
   };
   const bySlot = new Map(assets.map(asset => [asset.slot, asset]));
+  const supabase = createClient();
 
   async function upload(slot: Slot, event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -99,7 +100,7 @@ export function LandingPagePhotosWorkspace({ assets }: Props) {
       {slots.map(slot => {
         const asset = bySlot.get(slot.key);
         const preview = asset
-          ? createClient()?.storage.from("nsomex-website").getPublicUrl(asset.object_path).data.publicUrl
+          ? supabase?.storage.from("nsomex-website").getPublicUrl(asset.object_path).data.publicUrl
           : null;
         const busy = busySlot === slot.key;
         return <article className="cms-landing-photo-card" key={slot.key}>
