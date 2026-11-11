@@ -7,10 +7,6 @@ import styles from "./public-insights.module.css";
 type Props = { locale: Locale; articles: PublicArticle[]; emptyMessage: string };
 
 export function PublicInsights({ locale, articles, emptyMessage }: Props) {
-  const copy = locale === "fr"
-    ? { read: "Lire l'article", date: (value: string) => new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" }).format(new Date(value)), featured: "À la une" }
-    : { read: "Read article", date: (value: string) => new Intl.DateTimeFormat("en", { dateStyle: "long" }).format(new Date(value)), featured: "Featured" };
-
   if (!articles.length) return <p className={styles.empty}>{emptyMessage}</p>;
 
   return (
@@ -22,15 +18,14 @@ export function PublicInsights({ locale, articles, emptyMessage }: Props) {
               <div className={styles.cover}>
                 <Image src={article.cover_url} alt="" fill sizes="(max-width: 720px) 100vw, (max-width: 1100px) 50vw, 33vw" unoptimized />
               </div>
-            ) : <div className={styles.coverFallback} aria-hidden="true"><span>NSOMEX / INSIGHTS</span></div>}
+            ) : <div className={styles.coverFallback} aria-hidden="true" />}
             <div className={styles.cardBody}>
-              <div className={styles.meta}>
-                <time dateTime={article.published_at}>{copy.date(article.published_at)}</time>
-                {article.is_featured && <span>{copy.featured}</span>}
-              </div>
+              <time className={styles.date} dateTime={article.published_at}>
+                {new Intl.DateTimeFormat(locale === "fr" ? "fr-FR" : "en", { dateStyle: "long" }).format(new Date(article.published_at))}
+              </time>
               <h2>{article.title}</h2>
               {article.excerpt && <p>{article.excerpt}</p>}
-              <span className={styles.read}>{copy.read} <span aria-hidden="true">↗</span></span>
+              <span className={styles.arrow} aria-hidden="true">↗</span>
             </div>
           </Link>
         </article>

@@ -46,6 +46,7 @@ async function loadPublishedArticles(locale: Locale, slug?: string): Promise<Pub
     .eq("status", "published")
     .lte("published_at", new Date().toISOString())
     .eq("article_translations.locale_code", locale)
+    .order("is_featured", { ascending: false })
     .order("published_at", { ascending: false });
 
   if (slug) query = query.eq("article_translations.slug", slug);
@@ -66,35 +67,35 @@ async function loadPublishedArticles(locale: Locale, slug?: string): Promise<Pub
     for (const asset of (media ?? []) as MediaRow[]) mediaById.set(asset.id, asset);
   }
 
-  return Promise.all(rows.flatMap((row) => {
+  const articles = await Promise.all(rows.map(async (row): Promise<PublicArticle | null> => {
     const translation = row.article_translations.find((item) => item.locale_code === locale);
-    if (!translation) return [];
+    if (!translation) return null;
 
-    return [async () => {
-      let coverUrl: string | null = null;
-      const asset = row.cover_media_asset_id ? mediaById.get(row.cover_media_asset_id) : undefined;
-      if (asset) {
-        const { data: signed } = await supabase.storage
-          .from(asset.bucket_name)
-          .createSignedUrl(asset.object_path, 60 * 60);
-        coverUrl = signed?.signedUrl ?? null;
-      }
+    let coverUrl: string | null = null;
+    const asset = row.cover_media_asset_id ? mediaById.get(row.cover_media_asset_id) : undefined;
+    if (asset) {
+      const { data: signed } = await supabase.storage
+        .from(asset.bucket_name)
+        .createSignedUrl(asset.object_path, 60 * 60);
+      coverUrl = signed?.signedUrl ?? null;
+    }
 
-      return {
-        id: row.id,
-        article_type: row.article_type,
-        is_featured: row.is_featured,
-        published_at: row.published_at,
-        title: translation.title,
-        slug: translation.slug,
-        excerpt: translation.excerpt,
-        body: translation.body ?? {},
-        seo_title: translation.seo_title,
-        seo_description: translation.seo_description,
-        cover_url: coverUrl,
-      } satisfies PublicArticle;
-    }];
-  }).map(async (build) => build()));
+    return {
+      id: row.id,
+      article_type: row.article_type,
+      is_featured: row.is_featured,
+      published_at: row.published_at,
+      title: translation.title,
+      slug: translation.slug,
+      excerpt: translation.excerpt,
+      body: translation.body ?? {},
+      seo_title: translation.seo_title,
+      seo_description: translation.seo_description,
+      cover_url: coverUrl,
+    };
+  }));
+
+  return articles.filter((article): article is PublicArticle => article !== null);
 }
 
 export async function getPublishedArticles(locale: Locale): Promise<PublicArticle[]> {
