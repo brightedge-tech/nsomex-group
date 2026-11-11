@@ -36,6 +36,7 @@ export default async function CmsPublicPage({ params }: Props) {
         <p className="eyebrow"><span className="eyebrow-line" />NSOMEX GROUP</p>
         <h1>{page.title}</h1>
         {page.summary && <p>{page.summary}</p>}
+        {page.cover_image_url && <figure className="public-page-cover"><img src={page.cover_image_url} alt={page.title} /></figure>}
       </div>
     </section>
     <PublicPageSections sections={page.sections} />
