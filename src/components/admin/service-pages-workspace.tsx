@@ -8,14 +8,18 @@ import { attachMediaToService,changeServicePageStatus,removeServiceMedia,removeS
 
 type Translation={locale_code:string;field_name:string;content:string};
 type SectionTranslation={locale_code:string;title:string|null;body:string|null};
-type Section={id:string;section_key:string;section_type:"text"|"image_text"|"feature_grid"|"process"|"faq"|"callout";sort_order:number;service_section_translations:SectionTranslation[]};
-type Service={id:string;slug:string;code:string;status:"draft"|"review"|"published"|"archived";category_id:string;categories:{business_units:{division_id:string;code:string;divisions:{code:string}}|{division_id:string;code:string;divisions:{code:string}}[]}|{business_units:{division_id:string;code:string;divisions:{code:string}}|{division_id:string;code:string;divisions:{code:string}}[]}[];content_translations:Translation[];service_sections:Section[];service_media:AttachedMedia[]};
+type SectionType="text"|"image_text"|"feature_grid"|"process"|"faq"|"callout";
+type SectionForm={id:string;sectionKey:string;sectionType:SectionType;sortOrder:number;enTitle:string;frTitle:string;enBody:string;frBody:string};
+type Section={id:string;section_key:string;section_type:SectionType;sort_order:number;service_section_translations:SectionTranslation[]};
+type BusinessUnitRelation={division_id:string;code:string;divisions:{code:string}|{code:string}[]|null};
+type CategoryRelation={business_units:BusinessUnitRelation|BusinessUnitRelation[]|null};
+type Service={id:string;slug:string;code:string;status:"draft"|"review"|"published"|"archived";category_id:string;categories:CategoryRelation|CategoryRelation[]|null;content_translations:Translation[];service_sections:Section[];service_media:AttachedMedia[]};
 type Asset={id:string;division_id:string;object_path:string;original_filename:string;mime_type:string;byte_size:number;status:string};
 type AttachedMedia={id:string;media_role:"cover"|"gallery";media_assets:{original_filename:string;status:string;mime_type:string}|{original_filename:string;status:string;mime_type:string}[]|null};
 type Props={services:Service[];assets:Asset[];canManageGlobal:boolean};
 const get=(rows:Translation[],locale:string,field:string)=>rows.find(x=>x.locale_code===locale&&x.field_name===field)?.content??"";
 const getSection=(rows:SectionTranslation[],locale:string)=>rows.find(x=>x.locale_code===locale);
-const emptySection={id:"",sectionKey:"",sectionType:"text" as const,sortOrder:0,enTitle:"",frTitle:"",enBody:"",frBody:""};
+const emptySection:SectionForm={id:"",sectionKey:"",sectionType:"text",sortOrder:0,enTitle:"",frTitle:"",enBody:"",frBody:""};
 const formFor=(service?:Service)=>({
   enName:get(service?.content_translations??[],"en","name"),frName:get(service?.content_translations??[],"fr","name"),
   enSummary:get(service?.content_translations??[],"en","summary"),frSummary:get(service?.content_translations??[],"fr","summary"),
@@ -28,9 +32,11 @@ export function ServicePagesWorkspace({services,assets}:Props){
   const router=useRouter(),search=useSearchParams(),fr=search.get("lang")==="fr";
   const [selectedId,setSelectedId]=useState(services[0]?.id??"");
   const selected=services.find(s=>s.id===selectedId)??services[0];
-  const divisionId=selected?(Array.isArray(selected.categories?.business_units)?selected.categories.business_units[0]?.division_id:selected.categories?.business_units?.division_id)??"": "";
+  const selectedCategory=selected?(Array.isArray(selected.categories)?selected.categories[0]:selected.categories):null;
+  const selectedUnit=selectedCategory?(Array.isArray(selectedCategory.business_units)?selectedCategory.business_units[0]:selectedCategory.business_units):null;
+  const divisionId=selectedUnit?.division_id??"";
   const [form,setForm]=useState(()=>formFor(services[0]));
-  const [section,setSection]=useState(emptySection);
+  const [section,setSection]=useState<SectionForm>(emptySection);
   const [mediaId,setMediaId]=useState("");
   const [mediaRole,setMediaRole]=useState<"cover"|"gallery">("cover");
   const [busy,setBusy]=useState(false),[uploading,setUploading]=useState(false),[message,setMessage]=useState("");

@@ -101,11 +101,13 @@ export async function saveServiceSection(input:{
     if(error||!data)return {ok:false,error:error?.message??"Unable to create section."};
     sectionId=data.id;
   }
+  if(!sectionId)return {ok:false,error:"The section could not be saved."};
+  const savedSectionId=sectionId;
   const {error}=await auth.supabase.from("service_section_translations").upsert([
-    {section_id:sectionId,locale_code:"en",title:clean(input.enTitle,200)||null,body:clean(input.enBody,12000)||null},
-    {section_id:sectionId,locale_code:"fr",title:clean(input.frTitle,200)||null,body:clean(input.frBody,12000)||null},
+    {section_id:savedSectionId,locale_code:"en",title:clean(input.enTitle,200)||null,body:clean(input.enBody,12000)||null},
+    {section_id:savedSectionId,locale_code:"fr",title:clean(input.frTitle,200)||null,body:clean(input.frBody,12000)||null},
   ],{onConflict:"section_id,locale_code"});
-  return error?{ok:false,error:error.message}:{ok:true,id:sectionId};
+  return error?{ok:false,error:error.message}:{ok:true,id:savedSectionId};
 }
 
 export async function removeServiceSection(sectionId:string,divisionId:string):Promise<Result>{
