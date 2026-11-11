@@ -6,7 +6,7 @@ import { adminMessages, type AdminLocale } from "@/lib/admin-messages";
 
 type Props = { children: React.ReactNode; email: string };
 const navigation = [
-  { key:"dashboard", href:"/admin" }, { key:"catalogue", href:"/admin/catalogue" }, { key:"pages", href:"/admin/pages" },
+  { key:"dashboard", href:"/admin" }, { key:"catalogue", href:"/admin/catalogue" }, { key:"servicePages", href:"/admin/service-pages" }, { key:"pages", href:"/admin/pages" },
   { key:"projects", href:"/admin/projects" }, { key:"articles", href:"/admin/articles" },
   { key:"media", href:"/admin/media" }, { key:"landingPhotos", href:"/admin/landing-photos" }, { key:"careers", href:"/admin/careers" },
   { key:"enquiries", href:"/admin/enquiries" }, { key:"administrators", href:"/admin/administrators" },
