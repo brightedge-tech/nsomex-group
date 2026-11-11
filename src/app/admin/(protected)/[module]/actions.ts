@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
 type ActionResult = { ok: true; id?: string } | { ok: false; error: string };
@@ -84,17 +85,47 @@ export async function savePage(input: PageInput): Promise<ActionResult> {
     { page_id: pageId, locale_code: "fr", title: frTitle, summary: textValue(input.frSummary, 600) || null },
   ], { onConflict: "page_id,locale_code" });
   if (translationsError) return { ok: false, error: translationsError.message };
+  revalidatePath(`/en/pages/${slug}`);
+  revalidatePath(`/fr/pages/${slug}`);
+  revalidatePath("/en");
+  revalidatePath("/fr");
   return { ok: true, id: pageId };
 }
 
 export async function changePageStatus(pageId: string, status: "draft" | "review" | "published" | "archived"): Promise<ActionResult> {
   const supabase = await authorizedClient();
   if (!supabase) return { ok: false, error: "Your session has expired. Sign in again." };
+
+  const { data: page, error: lookupError } = await supabase
+    .from("pages").select("id,slug,division_id").eq("id", pageId).maybeSingle();
+  if (lookupError || !page) return { ok: false, error: lookupError?.message ?? "Page not found." };
+
+  const permission = status === "published" ? "content.publish"
+    : status === "review" ? "content.submit_review"
+    : status === "archived" ? "content.archive" : "content.edit";
+  const { data: allowed, error: permissionError } = await supabase.rpc("cms_has_permission", {
+    requested_permission: permission,
+    requested_division_id: page.division_id,
+  });
+  if (permissionError || allowed !== true) return { ok: false, error: "You do not have permission to change this page's publishing status." };
+
+  // A published page with no published sections appears blank. Publish its saved
+  // sections in the same operation so the public route can render the content.
+  if (status === "published") {
+    const { error: sectionError } = await supabase.from("page_sections")
+      .update({ status: "published" }).eq("page_id", pageId).neq("status", "archived");
+    if (sectionError) return { ok: false, error: sectionError.message };
+  }
+
   const values = status === "published"
     ? { status, published_at: new Date().toISOString() }
     : { status, published_at: null };
   const { error } = await supabase.from("pages").update(values).eq("id", pageId);
   if (error) return { ok: false, error: error.message };
+  revalidatePath(`/en/pages/${page.slug}`);
+  revalidatePath(`/fr/pages/${page.slug}`);
+  revalidatePath("/en");
+  revalidatePath("/fr");
   return { ok: true, id: pageId };
 }
 
@@ -141,7 +172,20 @@ export async function saveSection(input: SectionInput): Promise<ActionResult> {
 export async function changeSectionStatus(sectionId: string, status: "draft" | "published" | "archived"): Promise<ActionResult> {
   const supabase = await authorizedClient();
   if (!supabase) return { ok: false, error: "Your session has expired. Sign in again." };
+  const { data: section, error: lookupError } = await supabase.from("page_sections")
+    .select("id,page_id,pages(slug,division_id)").eq("id", sectionId).maybeSingle();
+  if (lookupError || !section) return { ok: false, error: lookupError?.message ?? "Section not found." };
+  const page = Array.isArray(section.pages) ? section.pages[0] : section.pages;
+  if (!page) return { ok: false, error: "The section's parent page could not be found." };
+  const permission = status === "published" ? "content.publish" : status === "archived" ? "content.archive" : "content.edit";
+  const { data: allowed, error: permissionError } = await supabase.rpc("cms_has_permission", {
+    requested_permission: permission,
+    requested_division_id: page.division_id,
+  });
+  if (permissionError || allowed !== true) return { ok: false, error: "You do not have permission to change this section's status." };
   const { error } = await supabase.from("page_sections").update({ status }).eq("id", sectionId);
   if (error) return { ok: false, error: error.message };
+  revalidatePath(`/en/pages/${page.slug}`);
+  revalidatePath(`/fr/pages/${page.slug}`);
   return { ok: true, id: sectionId };
 }

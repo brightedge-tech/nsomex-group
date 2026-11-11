@@ -147,11 +147,11 @@ export function CoreContentWorkspace({ divisions }: Props) {
         <div className="cms-editor-language"><strong>English</strong><span>EN</span></div>
         <label>{fr ? "Nom (anglais)" : "Name (English)"}<input required maxLength={200} value={form.enName} onChange={event => updateName(event.target.value, "enName")} /></label>
         <label>{fr ? "Résumé (anglais)" : "Summary (English)"}<textarea rows={2} maxLength={1000} value={form.enSummary} onChange={event => setForm({ ...form, enSummary: event.target.value })} /></label>
-        <label>{fr ? "Description (anglais)" : "Description (English)"}<textarea rows={3} maxLength={10000} value={form.enDescription} onChange={event => setForm({ ...form, enDescription: event.target.value })} /></label>
+        <label>{fr ? "Description (anglais)" : "Description (English)"}<textarea rows={12} className="cms-long-content" maxLength={10000} value={form.enDescription} onChange={event => setForm({ ...form, enDescription: event.target.value })} /></label>
         <div className="cms-editor-language"><strong>Français</strong><span>FR</span></div>
         <label>{fr ? "Nom (français)" : "Name (French)"}<input required maxLength={200} value={form.frName} onChange={event => updateName(event.target.value, "frName")} /></label>
         <label>{fr ? "Résumé (français)" : "Summary (French)"}<textarea rows={2} maxLength={1000} value={form.frSummary} onChange={event => setForm({ ...form, frSummary: event.target.value })} /></label>
-        <label>{fr ? "Description (français)" : "Description (French)"}<textarea rows={3} maxLength={10000} value={form.frDescription} onChange={event => setForm({ ...form, frDescription: event.target.value })} /></label>
+        <label>{fr ? "Description (français)" : "Description (French)"}<textarea rows={12} className="cms-long-content" maxLength={10000} value={form.frDescription} onChange={event => setForm({ ...form, frDescription: event.target.value })} /></label>
         <div className="cms-editor-two">
           <label>{fr ? "Ordre d'affichage" : "Display order"}<input type="number" min={0} max={9999} value={form.sortOrder} onChange={event => setForm({ ...form, sortOrder: Number(event.target.value) })} /></label>
           <label className="cms-editor-check"><input type="checkbox" checked={form.isActive} onChange={event => setForm({ ...form, isActive: event.target.checked })} /> {fr ? "Actif sur le site public" : "Active on the public website"}</label>

@@ -68,7 +68,7 @@
 .cms-editor-form label{display:grid;gap:7px;color:#687580;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
 .cms-editor-form input:not([type=checkbox]),.cms-editor-form select,.cms-editor-form textarea{width:100%;min-width:0;border:1px solid #dfe3e7;padding:11px 12px;background:#fbfcfc;color:var(--cms-ink);font:inherit;font-size:12px;letter-spacing:normal;text-transform:none}
 .cms-editor-form input:focus,.cms-editor-form select:focus,.cms-editor-form textarea:focus{outline:2px solid #c6a66a73;border-color:var(--cms-gold)}
-.cms-editor-form textarea{resize:vertical;line-height:1.6}
+.cms-editor-form textarea{resize:vertical;line-height:1.6;min-height:76px}.cms-editor-form textarea.cms-long-content{min-height:420px;line-height:1.75;font-size:13px;letter-spacing:normal;text-transform:none}
 .cms-editor-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
 .cms-editor-language{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#f3f5f6;color:var(--cms-ink);font-size:10px}
 .cms-editor-language span{color:#987b49;font-size:9px;font-weight:700}

@@ -114,8 +114,8 @@ export function ArticlesWorkspace({articles,categories,divisions,media,canManage
      <div className="cms-editor-language"><strong>{t.en}</strong><span>EN</span></div>
      <label>{t.title}<input required maxLength={200} value={form.enTitle} onChange={e=>setForm({...form,enTitle:e.target.value})}/></label>
      <label>{t.slug}<input required pattern="[a-z0-9]+(-[a-z0-9]+)*" value={form.enSlug} onChange={e=>setForm({...form,enSlug:e.target.value})} placeholder="company-update"/></label>
-     <label>{t.excerpt}<textarea rows={2} maxLength={600} value={form.enExcerpt} onChange={e=>setForm({...form,enExcerpt:e.target.value})}/></label>
-     <label>{t.body}<textarea rows={9} spellCheck={false} value={form.enBody} onChange={e=>setForm({...form,enBody:e.target.value})}/></label>
+     <label>{t.excerpt}<textarea rows={5} maxLength={600} value={form.enExcerpt} onChange={e=>setForm({...form,enExcerpt:e.target.value})}/></label>
+     <label>{t.body}<textarea rows={22} className="cms-long-content" spellCheck={false} value={form.enBody} onChange={e=>setForm({...form,enBody:e.target.value})}/></label>
      <div className="cms-editor-two">
       <label>{t.seoTitle}<input maxLength={200} value={form.enSeoTitle} onChange={e=>setForm({...form,enSeoTitle:e.target.value})}/></label>
       <label>{t.seoDescription}<textarea rows={2} maxLength={320} value={form.enSeoDescription} onChange={e=>setForm({...form,enSeoDescription:e.target.value})}/></label>
@@ -123,8 +123,8 @@ export function ArticlesWorkspace({articles,categories,divisions,media,canManage
      <div className="cms-editor-language"><strong>{t.fr}</strong><span>FR</span></div>
      <label>{t.title}<input required maxLength={200} value={form.frTitle} onChange={e=>setForm({...form,frTitle:e.target.value})}/></label>
      <label>{t.slug}<input required pattern="[a-z0-9]+(-[a-z0-9]+)*" value={form.frSlug} onChange={e=>setForm({...form,frSlug:e.target.value})} placeholder="actualite-entreprise"/></label>
-     <label>{t.excerpt}<textarea rows={2} maxLength={600} value={form.frExcerpt} onChange={e=>setForm({...form,frExcerpt:e.target.value})}/></label>
-     <label>{t.body}<textarea rows={9} spellCheck={false} value={form.frBody} onChange={e=>setForm({...form,frBody:e.target.value})}/></label>
+     <label>{t.excerpt}<textarea rows={5} maxLength={600} value={form.frExcerpt} onChange={e=>setForm({...form,frExcerpt:e.target.value})}/></label>
+     <label>{t.body}<textarea rows={22} className="cms-long-content" spellCheck={false} value={form.frBody} onChange={e=>setForm({...form,frBody:e.target.value})}/></label>
      <div className="cms-editor-two">
       <label>{t.seoTitle}<input maxLength={200} value={form.frSeoTitle} onChange={e=>setForm({...form,frSeoTitle:e.target.value})}/></label>
       <label>{t.seoDescription}<textarea rows={2} maxLength={320} value={form.frSeoDescription} onChange={e=>setForm({...form,frSeoDescription:e.target.value})}/></label>
