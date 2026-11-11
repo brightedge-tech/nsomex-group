@@ -66,9 +66,15 @@ export function ServicePagesWorkspace({services,assets}:Props){
     setMessage(result.ok?t.saved:result.error);if(result.ok)router.refresh();
   }
   async function changeStatus(status:"draft"|"review"|"published"|"archived"){
-    if(!selected)return;setBusy(true);setMessage("");
+    if(!selected)return;
+    if(status==="published"&&(!form.enDescription.trim()||!form.frDescription.trim())){
+      setMessage(fr?"Ajoutez la description complète en anglais et en français avant la publication.":"Add the full description in both English and French before publishing.");return;
+    }
+    setBusy(true);setMessage(fr?"Enregistrement du contenu avant publication…":"Saving your latest edits before publishing…");
+    const saved=await saveServicePage({id:selected.id,divisionId,...form});
+    if(!saved.ok){setBusy(false);setMessage(saved.error);return;}
     const result=await changeServicePageStatus(selected.id,divisionId,status);setBusy(false);
-    setMessage(result.ok?status:result.error);if(result.ok)router.refresh();
+    setMessage(result.ok?(fr?`Statut mis à jour : ${status}`:`Status updated: ${status}`):result.error);if(result.ok)router.refresh();
   }
   async function saveSection(event:FormEvent){
     event.preventDefault();if(!selected)return;setBusy(true);setMessage("");
