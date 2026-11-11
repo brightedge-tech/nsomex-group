@@ -15,6 +15,7 @@ type PageInput = {
   enSummary: string;
   frTitle: string;
   frSummary: string;
+  coverImagePath?: string | null;
 };
 type SectionInput = {
   id?: string;
@@ -62,8 +63,14 @@ export async function savePage(input: PageInput): Promise<ActionResult> {
   if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(templateKey)) return { ok: false, error: "Use a valid template key." };
   if (!enTitle || !frTitle) return { ok: false, error: "Add both English and French page titles before saving." };
 
+  const coverImagePath = textValue(input.coverImagePath, 500);
+  if (coverImagePath && (!input.id || !coverImagePath.startsWith(`pages/${input.id}/cover/`) || !/^pages\\/[0-9a-f-]{36}\\/cover\\/[A-Za-z0-9-]+\\.(jpg|jpeg|png|webp|avif)$/i.test(coverImagePath))) {
+    return { ok: false, error: "The page cover image path is invalid." };
+  }
+
   const pageValues = {
     slug,
+    cover_image_path: coverImagePath || null,
     template_key: templateKey,
     division_id: input.divisionId || null,
     show_in_navigation: Boolean(input.showInNavigation),
@@ -87,6 +94,7 @@ export async function savePage(input: PageInput): Promise<ActionResult> {
   if (translationsError) return { ok: false, error: translationsError.message };
   revalidatePath(`/en/pages/${slug}`);
   revalidatePath(`/fr/pages/${slug}`);
+  if (slug === "about") { revalidatePath("/en/about"); revalidatePath("/fr/about"); }
   revalidatePath("/en");
   revalidatePath("/fr");
   return { ok: true, id: pageId };
@@ -124,6 +132,7 @@ export async function changePageStatus(pageId: string, status: "draft" | "review
   if (error) return { ok: false, error: error.message };
   revalidatePath(`/en/pages/${page.slug}`);
   revalidatePath(`/fr/pages/${page.slug}`);
+  if (page.slug === "about") { revalidatePath("/en/about"); revalidatePath("/fr/about"); }
   revalidatePath("/en");
   revalidatePath("/fr");
   return { ok: true, id: pageId };
@@ -141,6 +150,11 @@ export async function saveSection(input: SectionInput): Promise<ActionResult> {
     return { ok: false, error: "Section key and type must use lowercase letters, numbers and hyphens." };
   }
   if (!enContent || !frContent) return { ok: false, error: "English and French section content must each be a valid JSON object." };
+  const validSectionImage = (content: Record<string, unknown>) => {
+    const path = content.imagePath;
+    return path === undefined || path === null || path === "" || (typeof path === "string" && path.startsWith(`pages/${input.pageId}/sections/`) && /^pages\\/[0-9a-f-]{36}\\/sections\\/[A-Za-z0-9-]+\\.(jpg|jpeg|png|webp|avif)$/i.test(path));
+  };
+  if (!validSectionImage(enContent) || !validSectionImage(frContent)) return { ok: false, error: "The section image path is invalid." };
 
   let sectionId = input.id;
   if (sectionId) {
