@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDictionary } from "@/i18n/dictionaries";
 import { isLocale } from "@/i18n/config";
-import { divisions } from "@/lib/site";
+import { catalogueText, getPublicDivisions } from "@/lib/public-catalogue";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MediaPlaceholder } from "@/components/media-placeholder";
@@ -16,6 +16,7 @@ export default async function HomePage({ params }: Props) {
   if (!isLocale(rawLocale)) notFound();
   const locale = rawLocale;
   const t = getDictionary(locale).home;
+  const divisions = await getPublicDivisions();
   const supabase = await createClient();
   const { data: landingAssets } = supabase
     ? await supabase.from("landing_page_media").select("slot,object_path")
@@ -64,15 +65,19 @@ export default async function HomePage({ params }: Props) {
         <div className="section-wrap">
           <div className="section-heading"><div><p className="eyebrow">{t.ourDivisions}</p><h2>{t.divisionHeading}</h2></div><p>{t.divisionIntro}</p></div>
           <div className="division-grid">
-            {divisions.map((division) => (
-              <article className="division-card" key={division.slug}>
-                <div className="division-card-top"><span className="division-number">{division.number}</span><span className="card-arrow" aria-hidden="true">↗</span></div>
-                <MediaPlaceholder className="home-division-media" label={`${division.name} / illustrative stock image`} detail={locale === "fr" ? "Image illustrative — pas une photo de projet NSOMEX." : "Illustrative stock image — not an NSOMEX project photograph."} ratio="landscape" imageUrl={landingImages[division.slug] ?? divisionImages[division.slug]} />
-                <h3>{division.name}</h3><p>{division.summary[locale]}</p>
-                <ul>{division.focus.slice(0, 3).map((item) => <li key={item.slug}>{item.name[locale]}</li>)}</ul>
-                <Link className="card-link" href={`/${locale}/divisions/${division.slug}`}>{t.exploreDivision} <span aria-hidden="true">→</span></Link>
-              </article>
-            ))}
+            {divisions.map((division) => {
+              const name = catalogueText(division.content_translations, locale, "name") || division.code;
+              const summary = catalogueText(division.content_translations, locale, "summary");
+              return (
+                <article className="division-card" key={division.id}>
+                  <div className="division-card-top"><span className="division-number">{String(division.sort_order).padStart(2, "0")}</span><span className="card-arrow" aria-hidden="true">↗</span></div>
+                  <MediaPlaceholder className="home-division-media" label={`${name} / illustrative stock image`} detail={locale === "fr" ? "Image illustrative — pas une photo de projet NSOMEX." : "Illustrative stock image — not an NSOMEX project photograph."} ratio="landscape" imageUrl={landingImages[division.slug] ?? divisionImages[division.slug]} />
+                  <h3>{name}</h3><p>{summary}</p>
+                  <ul>{division.business_units.slice(0, 3).map((unit) => <li key={unit.id}>{catalogueText(unit.content_translations, locale, "name") || unit.code}</li>)}</ul>
+                  <Link className="card-link" href={`/${locale}/divisions/${division.slug}`}>{t.exploreDivision} <span aria-hidden="true">→</span></Link>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
