@@ -54,7 +54,16 @@ export function ServicePagesWorkspace({services,assets}:Props){
       enSeoDescription:get(s.content_translations,"en","seo_description"),frSeoDescription:get(s.content_translations,"fr","seo_description")});
     setSection(emptySection);setMessage("");
   }
-  useEffect(()=>{if(selected&&loadedId!==selected.id)selectService(selected.id);},[selected?.id,loadedId]);
+  useEffect(()=>{
+    if(!selected||loadedId===selected.id)return;
+    setLoadedId(selected.id);
+    setForm({enName:get(selected.content_translations,"en","name"),frName:get(selected.content_translations,"fr","name"),
+      enSummary:get(selected.content_translations,"en","summary"),frSummary:get(selected.content_translations,"fr","summary"),
+      enDescription:get(selected.content_translations,"en","description"),frDescription:get(selected.content_translations,"fr","description"),
+      enSeoTitle:get(selected.content_translations,"en","seo_title"),frSeoTitle:get(selected.content_translations,"fr","seo_title"),
+      enSeoDescription:get(selected.content_translations,"en","seo_description"),frSeoDescription:get(selected.content_translations,"fr","seo_description")});
+    setSection(emptySection);setMessage("");
+  },[selected,loadedId]);
   async function save(event:FormEvent){event.preventDefault();if(!selected)return;setBusy(true);setMessage("");
     const result=await saveServicePage({id:selected.id,divisionId,...form});setBusy(false);
     setMessage(result.ok?t.saved:result.error);if(result.ok)router.refresh();

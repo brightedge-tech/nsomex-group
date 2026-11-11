@@ -131,6 +131,11 @@ export async function attachMediaToService(input:{serviceId:string;divisionId:st
   const category=Array.isArray(service?.categories)?service?.categories[0]:service?.categories;
   const unit=Array.isArray(category?.business_units)?category?.business_units[0]:category?.business_units;
   if(serviceError||!service||unit?.division_id!==input.divisionId)return {ok:false,error:"The service does not belong to this division."};
+  if(input.role==="cover"){
+    const {error:coverError}=await auth.supabase.from("service_media")
+      .update({media_role:"gallery"}).eq("service_id",input.serviceId).eq("media_role","cover");
+    if(coverError)return {ok:false,error:coverError.message};
+  }
   const {data,error}=await auth.supabase.from("service_media").upsert({
     service_id:input.serviceId,media_asset_id:input.mediaAssetId,media_role:input.role,
     sort_order:Math.max(0,Math.min(9999,Math.trunc(input.sortOrder)))
