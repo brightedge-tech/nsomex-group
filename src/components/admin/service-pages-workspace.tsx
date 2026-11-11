@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect,useState,type ChangeEvent,type FormEvent } from "react";
+import { useState,type ChangeEvent,type FormEvent } from "react";
 import { useRouter,useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/browser";
 import { changeMediaStatus,registerMediaAsset } from "@/app/admin/(protected)/[module]/project-actions";
@@ -16,14 +16,20 @@ type Props={services:Service[];assets:Asset[];canManageGlobal:boolean};
 const get=(rows:Translation[],locale:string,field:string)=>rows.find(x=>x.locale_code===locale&&x.field_name===field)?.content??"";
 const getSection=(rows:SectionTranslation[],locale:string)=>rows.find(x=>x.locale_code===locale);
 const emptySection={id:"",sectionKey:"",sectionType:"text" as const,sortOrder:0,enTitle:"",frTitle:"",enBody:"",frBody:""};
+const formFor=(service?:Service)=>({
+  enName:get(service?.content_translations??[],"en","name"),frName:get(service?.content_translations??[],"fr","name"),
+  enSummary:get(service?.content_translations??[],"en","summary"),frSummary:get(service?.content_translations??[],"fr","summary"),
+  enDescription:get(service?.content_translations??[],"en","description"),frDescription:get(service?.content_translations??[],"fr","description"),
+  enSeoTitle:get(service?.content_translations??[],"en","seo_title"),frSeoTitle:get(service?.content_translations??[],"fr","seo_title"),
+  enSeoDescription:get(service?.content_translations??[],"en","seo_description"),frSeoDescription:get(service?.content_translations??[],"fr","seo_description")
+});
 
 export function ServicePagesWorkspace({services,assets}:Props){
   const router=useRouter(),search=useSearchParams(),fr=search.get("lang")==="fr";
   const [selectedId,setSelectedId]=useState(services[0]?.id??"");
   const selected=services.find(s=>s.id===selectedId)??services[0];
   const divisionId=selected?(Array.isArray(selected.categories?.business_units)?selected.categories.business_units[0]?.division_id:selected.categories?.business_units?.division_id)??"": "";
-  const [form,setForm]=useState(()=>({enName:"",frName:"",enSummary:"",frSummary:"",enDescription:"",frDescription:"",enSeoTitle:"",frSeoTitle:"",enSeoDescription:"",frSeoDescription:""}));
-  const [loadedId,setLoadedId]=useState("");
+  const [form,setForm]=useState(()=>formFor(services[0]));
   const [section,setSection]=useState(emptySection);
   const [mediaId,setMediaId]=useState("");
   const [mediaRole,setMediaRole]=useState<"cover"|"gallery">("cover");
@@ -46,25 +52,9 @@ export function ServicePagesWorkspace({services,assets}:Props){
     empty:"No services are available in your access scope.",saved:"Changes saved.",status:"Status",loading:"Saving…"
   };
   function selectService(id:string){
-    const s=services.find(x=>x.id===id);if(!s)return;
-    setSelectedId(id);setLoadedId(id);
-    setForm({enName:get(s.content_translations,"en","name"),frName:get(s.content_translations,"fr","name"),
-      enSummary:get(s.content_translations,"en","summary"),frSummary:get(s.content_translations,"fr","summary"),
-      enDescription:get(s.content_translations,"en","description"),frDescription:get(s.content_translations,"fr","description"),
-      enSeoTitle:get(s.content_translations,"en","seo_title"),frSeoTitle:get(s.content_translations,"fr","seo_title"),
-      enSeoDescription:get(s.content_translations,"en","seo_description"),frSeoDescription:get(s.content_translations,"fr","seo_description")});
-    setSection(emptySection);setMessage("");
+    const service=services.find(x=>x.id===id);if(!service)return;
+    setSelectedId(id);setForm(formFor(service));setSection(emptySection);setMessage("");
   }
-  useEffect(()=>{
-    if(!selected||loadedId===selected.id)return;
-    setLoadedId(selected.id);
-    setForm({enName:get(selected.content_translations,"en","name"),frName:get(selected.content_translations,"fr","name"),
-      enSummary:get(selected.content_translations,"en","summary"),frSummary:get(selected.content_translations,"fr","summary"),
-      enDescription:get(selected.content_translations,"en","description"),frDescription:get(selected.content_translations,"fr","description"),
-      enSeoTitle:get(selected.content_translations,"en","seo_title"),frSeoTitle:get(selected.content_translations,"fr","seo_title"),
-      enSeoDescription:get(selected.content_translations,"en","seo_description"),frSeoDescription:get(selected.content_translations,"fr","seo_description")});
-    setSection(emptySection);setMessage("");
-  },[selected,loadedId]);
   async function save(event:FormEvent){event.preventDefault();if(!selected)return;setBusy(true);setMessage("");
     const result=await saveServicePage({id:selected.id,divisionId,...form});setBusy(false);
     setMessage(result.ok?t.saved:result.error);if(result.ok)router.refresh();
