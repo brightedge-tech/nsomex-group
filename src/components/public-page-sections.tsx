@@ -20,13 +20,14 @@ export function PublicPageSections({ sections }: { sections: PublicSection[] }) 
       const items = itemsValue(content.items);
       const type = section.section_type;
 
-      if (!heading && !body && !lead && items.length === 0) return null;
+      if (!heading && !body && !lead && items.length === 0 && !section.image_url) return null;
 
       if (type === "feature-grid" || type === "cards") {
         return <section className="public-cms-section section-wrap" key={section.id}>
           {eyebrow && <p className="eyebrow dark-eyebrow">{eyebrow}</p>}
           {heading && <h2 className="public-cms-heading">{heading}</h2>}
           {lead && <p className="public-cms-lead">{lead}</p>}
+          {section.image_url && <figure className="public-cms-image"><img src={section.image_url} alt={section.image_alt || heading || "NSOMEX Group"} loading="lazy" /></figure>}
           <div className="public-cms-card-grid">
             {items.map((item, index) => <article className="public-cms-card" key={index}>
               <span className="division-number">{String(index + 1).padStart(2, "0")}</span>
@@ -42,6 +43,7 @@ export function PublicPageSections({ sections }: { sections: PublicSection[] }) 
           {eyebrow && <p className="eyebrow dark-eyebrow">{eyebrow}</p>}
           {heading && <h2 className="public-cms-heading">{heading}</h2>}
           {lead && <p className="public-cms-lead">{lead}</p>}
+          {section.image_url && <figure className="public-cms-image"><img src={section.image_url} alt={section.image_alt || heading || "NSOMEX Group"} loading="lazy" /></figure>}
           <ul className="public-cms-list">{items.map((item, index) => <li key={index}>
             <span className="division-number">{String(index + 1).padStart(2, "0")}</span>
             <div>{(item.title || item.heading || item.label) && <strong>{item.title || item.heading || item.label}</strong>}
@@ -52,7 +54,7 @@ export function PublicPageSections({ sections }: { sections: PublicSection[] }) 
 
       if (type === "call-to-action" || type === "cta") {
         return <section className="public-cms-cta section-wrap" key={section.id}>
-          <div>{eyebrow && <p className="eyebrow">{eyebrow}</p>}{heading && <h2>{heading}</h2>}{body && <p>{body}</p>}</div>
+          <div>{eyebrow && <p className="eyebrow">{eyebrow}</p>}{heading && <h2>{heading}</h2>}{body && <p>{body}</p>}{section.image_url && <figure className="public-cms-image"><img src={section.image_url} alt={section.image_alt || heading || "NSOMEX Group"} loading="lazy" /></figure>}</div>
         </section>;
       }
 
@@ -60,6 +62,7 @@ export function PublicPageSections({ sections }: { sections: PublicSection[] }) 
         {eyebrow && <p className="eyebrow dark-eyebrow">{eyebrow}</p>}
         {heading && <h2 className="public-cms-heading">{heading}</h2>}
         {lead && <p className="public-cms-lead">{lead}</p>}
+        {section.image_url && <figure className="public-cms-image"><img src={section.image_url} alt={section.image_alt || heading || "NSOMEX Group"} loading="lazy" /></figure>}
         {body && <div className="public-cms-body">{body.split(/\n{2,}/).map((paragraph, index) => <p key={index}>{paragraph}</p>)}</div>}
         {items.length > 0 && <div className="public-cms-card-grid">
           {items.map((item, index) => <article className="public-cms-card" key={index}>
