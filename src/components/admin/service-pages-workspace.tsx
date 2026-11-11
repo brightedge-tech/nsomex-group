@@ -104,7 +104,8 @@ export function ServicePagesWorkspace({services,assets}:Props){
   }
   function editSection(item:Section){
     const en=getSection(item.service_section_translations,"en"),frText=getSection(item.service_section_translations,"fr");
-    setSection({id:item.id,sectionKey:item.section_key,sectionType:item.section_type,sortOrder:item.sort_order,enTitle:en?.title??"",frTitle:frText?.title??"",enBody:en?.body??"",frBody:frText?.body??""});
+    const validKey=/^[a-z0-9]+(-[a-z0-9]+)*$/.test(item.section_key);
+    setSection({id:item.id,sectionKey:validKey?item.section_key:`section-${Math.max(1,item.sort_order)}`,sectionType:item.section_type,sortOrder:item.sort_order,enTitle:en?.title??"",frTitle:frText?.title??"",enBody:en?.body??"",frBody:frText?.body??""});
   }
   async function removeMedia(id:string){
     setBusy(true);const result=await removeServiceMedia(id,divisionId);setBusy(false);
