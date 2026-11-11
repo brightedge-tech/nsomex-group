@@ -204,7 +204,7 @@ function readBlocks(value:string):ArticleBlock[]{
 function ArticleBodyEditor({locale,value,onChange}:{locale:"en"|"fr";value:string;onChange:(value:string)=>void}){
  const french=locale==="fr";const blocks=readBlocks(value);
  function update(index:number,next:ArticleBlock){const copy=[...blocks];copy[index]=next;onChange(JSON.stringify({blocks:copy},null,2));}
- function add(type:ArticleBlock["type"]){onChange(JSON.stringify({blocks:[...blocks,{type,...(type==="list"?{items:[""]}:{text:""})]},null,2));}
+ function add(type:ArticleBlock["type"]){const next:ArticleBlock=type==="list"?{type,items:[""]}:{type,text:""};onChange(JSON.stringify({blocks:[...blocks,next]},null,2));}
  function remove(index:number){onChange(JSON.stringify({blocks:blocks.filter((_,i)=>i!==index)},null,2));}
  return <section className="cms-article-body-editor" aria-label={french?"Éditeur de l’article":"Article editor"}>
   <div className="cms-pages-editor-heading"><div><p className="cms-eyebrow">{french?"MISE EN PAGE":"ARTICLE LAYOUT"}</p><h3>{french?"Construisez votre article":"Build your article"}</h3></div><span className="cms-module-tag">{blocks.length} {french?"blocs":"blocks"}</span></div>
