@@ -43,13 +43,31 @@ export function CoreContentWorkspace({ divisions }: Props) {
 
   const division = divisions.find(item => item.id === divisionId) ?? divisions[0];
   const units = division?.business_units ?? [];
+  const allUnits = divisions.flatMap(item => item.business_units ?? []);
   const categories = units.flatMap(unit => unit.categories ?? []);
+  const allCategories = allUnits.flatMap(unit => unit.categories ?? []);
   const parentOptions = useMemo(() => {
-    if (form.kind === "business_unit") return division ? [{ id: division.id, label: value(division.content_translations, locale, "name") || division.code }] : [];
-    if (form.kind === "category") return units.map(item => ({ id: item.id, label: value(item.content_translations, locale, "name") || item.code }));
-    if (form.kind === "service") return categories.map(item => ({ id: item.id, label: value(item.content_translations, locale, "name") || item.code }));
+    if (form.kind === "business_unit") return divisions.map(item => ({
+      id: item.id,
+      label: value(item.content_translations, locale, "name") || item.code,
+    }));
+    if (form.kind === "category") return allUnits.map(item => {
+      const owner = divisions.find(entry => entry.id === item.division_id);
+      return {
+        id: item.id,
+        label: `${owner ? (value(owner.content_translations, locale, "name") || owner.code) : ""} / ${value(item.content_translations, locale, "name") || item.code}`,
+      };
+    });
+    if (form.kind === "service") return allCategories.map(item => {
+      const ownerUnit = allUnits.find(entry => entry.id === item.business_unit_id);
+      const owner = divisions.find(entry => entry.id === ownerUnit?.division_id);
+      return {
+        id: item.id,
+        label: `${owner ? (value(owner.content_translations, locale, "name") || owner.code) : ""} / ${value(item.content_translations, locale, "name") || item.code}`,
+      };
+    });
     return [];
-  }, [form.kind, division, units, categories, locale]);
+  }, [form.kind, divisions, allUnits, allCategories, locale]);
 
   function chooseKind(kind: CoreContentKind) {
     setForm(emptyForm(kind, kind === "division" ? "" : kind === "business_unit" ? divisionId : kind === "category" ? units[0]?.id ?? "" : categories[0]?.id ?? ""));
@@ -57,7 +75,7 @@ export function CoreContentWorkspace({ divisions }: Props) {
     setMessage("");
   }
 
-  function edit(kind: CoreContentKind, item: Division | BusinessUnit | Category | Service) {
+  function edit(kind: CoreContentKind, item: Division | BusinessUnit | Category | Service, ownerDivisionId: string) {
     const translations = item.content_translations;
     const parentId = kind === "business_unit" ? (item as BusinessUnit).division_id
       : kind === "category" ? (item as Category).business_unit_id
@@ -70,7 +88,7 @@ export function CoreContentWorkspace({ divisions }: Props) {
       enSummary: value(translations, "en", "summary"), frSummary: value(translations, "fr", "summary"),
       enDescription: value(translations, "en", "description"), frDescription: value(translations, "fr", "description"),
     });
-    if (kind === "division") setDivisionId(item.id);
+    setDivisionId(kind === "division" ? item.id : ownerDivisionId);
     setAutoSlug(false);
     setMessage("");
   }
@@ -100,11 +118,11 @@ export function CoreContentWorkspace({ divisions }: Props) {
     service: fr ? "Service" : "Service",
   })[kind];
 
-  function recordRow(kind: CoreContentKind, item: Division | BusinessUnit | Category | Service, depth = 0) {
+  function recordRow(kind: CoreContentKind, item: Division | BusinessUnit | Category | Service, ownerDivisionId: string, depth = 0) {
     const name = value(item.content_translations, locale, "name") || item.code;
     return <div className="cms-catalogue-row" key={item.id} style={{ paddingLeft: 14 + depth * 18 }}>
       <div><strong>{name}</strong><span>{item.code} · /{item.slug} · {item.is_active ? (fr ? "Actif" : "Active") : (fr ? "Inactif" : "Inactive")}</span></div>
-      <button type="button" onClick={() => edit(kind, item)}>{fr ? "Modifier" : "Edit"}</button>
+      <button type="button" onClick={() => edit(kind, item, ownerDivisionId)}>{fr ? "Modifier" : "Edit"}</button>
     </div>;
   }
 
@@ -129,15 +147,26 @@ export function CoreContentWorkspace({ divisions }: Props) {
       <form className="cms-editor-form cms-catalogue-form" onSubmit={submit}>
         <div className="cms-pages-editor-heading"><div><p className="cms-eyebrow">{fr ? "ÉDITEUR DU CATALOGUE" : "CATALOGUE EDITOR"}</p><h2>{form.id ? (fr ? "Modifier" : "Edit") : (fr ? "Créer" : "Create")} {label(form.kind)}</h2></div><span className="cms-module-tag">{form.kind.replace("_", " ")}</span></div>
         {form.kind !== "division" && <label>{form.kind === "service" ? (fr ? "Catégorie parente" : "Parent category") : form.kind === "category" ? (fr ? "Unité opérationnelle" : "Business unit") : (fr ? "Division" : "Division")}
-          <select required value={form.parentId} onChange={event => setForm({ ...form, parentId: event.target.value, parentCategoryId: "" })}>
+          <select required value={form.parentId} onChange={event => {
+            const nextParentId = event.target.value;
+            let nextDivisionId = divisionId;
+            if (form.kind === "business_unit") nextDivisionId = nextParentId;
+            if (form.kind === "category") nextDivisionId = allUnits.find(item => item.id === nextParentId)?.division_id ?? divisionId;
+            if (form.kind === "service") {
+              const selectedCategory = allCategories.find(item => item.id === nextParentId);
+              nextDivisionId = allUnits.find(item => item.id === selectedCategory?.business_unit_id)?.division_id ?? divisionId;
+            }
+            setDivisionId(nextDivisionId);
+            setForm({ ...form, parentId: nextParentId, parentCategoryId: "" });
+          }}>
             <option value="">{fr ? "Sélectionner…" : "Select…"}</option>
             {parentOptions.map(option => <option key={option.id} value={option.id}>{option.label}</option>)}
           </select>
         </label>}
-        {form.kind === "category" && !form.id && <label>{fr ? "Sous-catégorie de (facultatif)" : "Subcategory of (optional)"}
+        {form.kind === "category" && <label>{fr ? "Sous-catégorie de (facultatif)" : "Subcategory of (optional)"}
           <select value={form.parentCategoryId} onChange={event => setForm({ ...form, parentCategoryId: event.target.value })}>
             <option value="">{fr ? "Catégorie principale" : "Top-level category"}</option>
-            {categories.filter(item => item.id !== form.id && item.business_unit_id === form.parentId).map(item => <option key={item.id} value={item.id}>{value(item.content_translations, locale, "name") || item.code}</option>)}
+            {allCategories.filter(item => item.id !== form.id && item.business_unit_id === form.parentId).map(item => <option key={item.id} value={item.id}>{value(item.content_translations, locale, "name") || item.code}</option>)}
           </select>
         </label>}
         <div className="cms-editor-two">
@@ -163,13 +192,13 @@ export function CoreContentWorkspace({ divisions }: Props) {
 
     <section className="cms-catalogue-panel">
       <div className="cms-pages-editor-heading"><div><p className="cms-eyebrow">{fr ? "STRUCTURE ACTUELLE" : "CURRENT STRUCTURE"}</p><h2>{fr ? "Catalogue de l'entreprise" : "Business catalogue"}</h2></div><span className="cms-module-tag">{units.length} {fr ? "unités" : "units"}</span></div>
-      {division && recordRow("division", division)}
+      {division && recordRow("division", division, division.id)}
       {units.length === 0 && <p className="cms-pages-empty">{fr ? "Aucune unité opérationnelle n'a encore été ajoutée." : "No business units have been added yet."}</p>}
       {units.map(unit => <div key={unit.id}>
-        {recordRow("business_unit", unit, 1)}
+        {recordRow("business_unit", unit, division.id, 1)}
         {(unit.categories ?? []).map(category => <div key={category.id}>
-          {recordRow("category", category, 2)}
-          {(category.services ?? []).map(service => recordRow("service", service, 3))}
+          {recordRow("category", category, division.id, 2)}
+          {(category.services ?? []).map(service => recordRow("service", service, division.id, 3))}
         </div>)}
       </div>)}
     </section>
