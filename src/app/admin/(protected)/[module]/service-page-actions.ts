@@ -1,5 +1,7 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+
 import { createClient } from "@/lib/supabase/server";
 
 type Result = { ok: true; id: string } | { ok: false; error: string };
@@ -41,10 +43,9 @@ export async function saveServicePage(input:ServicePageInput):Promise<Result>{
     {locale_code:"fr",field_name:"seo_title",content:clean(input.frSeoTitle,200)},
     {locale_code:"en",field_name:"seo_description",content:clean(input.enSeoDescription,320)},
     {locale_code:"fr",field_name:"seo_description",content:clean(input.frSeoDescription,320)},
-  ].filter(row=>row.content);
-  if(translations.filter(row=>row.field_name==="name").length!==2||
-     translations.filter(row=>row.field_name==="description").length!==2){
-    return {ok:false,error:"English and French names and descriptions are required."};
+  ];
+  if(translations.filter(row=>row.field_name==="name"&&row.content).length!==2){
+    return {ok:false,error:"Add the service name in both English and French before saving."};
   }
   for(const row of translations){
     const key={service_id:id,locale_code:row.locale_code,field_name:row.field_name};
@@ -70,10 +71,20 @@ export async function changeServicePageStatus(serviceId:string,divisionId:string
   const category=Array.isArray(service?.categories)?service?.categories[0]:service?.categories;
   const unit=Array.isArray(category?.business_units)?category?.business_units[0]:category?.business_units;
   if(lookupError||!service||unit?.division_id!==divisionId)return {ok:false,error:"Service access could not be verified."};
+  if(status==="published"){
+    const {data:descriptions,error:descriptionError}=await auth.supabase.from("content_translations")
+      .select("locale_code,content").eq("service_id",serviceId).eq("field_name","description").in("locale_code",["en","fr"]);
+    if(descriptionError)return {ok:false,error:descriptionError.message};
+    const ready=new Set((descriptions??[]).filter(row=>typeof row.content==="string"&&row.content.trim()).map(row=>row.locale_code));
+    if(!ready.has("en")||!ready.has("fr"))return {ok:false,error:"Add and save the full service description in both English and French before publishing."};
+  }
   const {error}=await auth.supabase.from("services").update({
     status,is_active:status!=="archived",published_at:status==="published"?new Date().toISOString():null
   }).eq("id",serviceId);
-  return error?{ok:false,error:error.message}:{ok:true,id:serviceId};
+  if(error)return {ok:false,error:error.message};
+  revalidatePath("/en/divisions/[slug]/[...segments]","page");
+  revalidatePath("/fr/divisions/[slug]/[...segments]","page");
+  return {ok:true,id:serviceId};
 }
 
 export async function saveServiceSection(input:{

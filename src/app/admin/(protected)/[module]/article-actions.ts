@@ -1,5 +1,7 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+
 import { createClient } from "@/lib/supabase/server";
 
 type Result={ok:true;id:string}|{ok:false;error:string};
@@ -85,7 +87,11 @@ export async function changeArticleStatus(articleId:string,divisionId:string|nul
  const auth=await authorize(permission,divisionId);
  if(!auth.supabase)return {ok:false,error:auth.error};
  const {error}=await auth.supabase.from("articles").update({status,published_at:status==="published"?new Date().toISOString():null}).eq("id",articleId);
- return error?{ok:false,error:error.message}:{ok:true,id:articleId};
+ if(error)return {ok:false,error:error.message};
+ revalidatePath("/en/insights");revalidatePath("/fr/insights");
+ const {data:slugs}=await auth.supabase.from("article_translations").select("locale_code,slug").eq("article_id",articleId);
+ for(const row of slugs??[])if(row.locale_code==="en"||row.locale_code==="fr")revalidatePath(`/${row.locale_code}/insights/${row.slug}`);
+ return {ok:true,id:articleId};
 }
 type CategoryInput={id?:string;slug:string;enName:string;frName:string;enDescription:string;frDescription:string};
 export async function saveArticleCategory(input:CategoryInput):Promise<Result>{
