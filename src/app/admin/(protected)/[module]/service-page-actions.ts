@@ -41,10 +41,9 @@ export async function saveServicePage(input:ServicePageInput):Promise<Result>{
     {locale_code:"fr",field_name:"seo_title",content:clean(input.frSeoTitle,200)},
     {locale_code:"en",field_name:"seo_description",content:clean(input.enSeoDescription,320)},
     {locale_code:"fr",field_name:"seo_description",content:clean(input.frSeoDescription,320)},
-  ].filter(row=>row.content);
-  if(translations.filter(row=>row.field_name==="name").length!==2||
-     translations.filter(row=>row.field_name==="description").length!==2){
-    return {ok:false,error:"English and French names and descriptions are required."};
+  ];
+  if(translations.filter(row=>row.field_name==="name"&&row.content).length!==2){
+    return {ok:false,error:"Add the service name in both English and French before saving."};
   }
   for(const row of translations){
     const key={service_id:id,locale_code:row.locale_code,field_name:row.field_name};
