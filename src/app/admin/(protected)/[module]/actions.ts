@@ -64,7 +64,9 @@ export async function savePage(input: PageInput): Promise<ActionResult> {
   if (!enTitle || !frTitle) return { ok: false, error: "Add both English and French page titles before saving." };
 
   const coverImagePath = textValue(input.coverImagePath, 500);
-  if (coverImagePath && (!input.id || !coverImagePath.startsWith(`pages/${input.id}/cover/`) || !/^pages\\/[0-9a-f-]{36}\\/cover\\/[A-Za-z0-9-]+\\.(jpg|jpeg|png|webp|avif)$/i.test(coverImagePath))) {
+  const coverPrefix = input.id ? `pages/${input.id}/cover/` : "";
+  const coverFilename = coverImagePath.startsWith(coverPrefix) ? coverImagePath.slice(coverPrefix.length) : "";
+  if (coverImagePath && (!input.id || !coverPrefix || !/^[A-Za-z0-9-]+[.](jpg|jpeg|png|webp|avif)$/i.test(coverFilename))) {
     return { ok: false, error: "The page cover image path is invalid." };
   }
 
@@ -150,9 +152,12 @@ export async function saveSection(input: SectionInput): Promise<ActionResult> {
     return { ok: false, error: "Section key and type must use lowercase letters, numbers and hyphens." };
   }
   if (!enContent || !frContent) return { ok: false, error: "English and French section content must each be a valid JSON object." };
+  const sectionPrefix = `pages/${input.pageId}/sections/`;
   const validSectionImage = (content: Record<string, unknown>) => {
     const path = content.imagePath;
-    return path === undefined || path === null || path === "" || (typeof path === "string" && path.startsWith(`pages/${input.pageId}/sections/`) && /^pages\\/[0-9a-f-]{36}\\/sections\\/[A-Za-z0-9-]+\\.(jpg|jpeg|png|webp|avif)$/i.test(path));
+    if (path === undefined || path === null || path === "") return true;
+    if (typeof path !== "string" || !path.startsWith(sectionPrefix)) return false;
+    return /^[A-Za-z0-9-]+[.](jpg|jpeg|png|webp|avif)$/i.test(path.slice(sectionPrefix.length));
   };
   if (!validSectionImage(enContent) || !validSectionImage(frContent)) return { ok: false, error: "The section image path is invalid." };
 
