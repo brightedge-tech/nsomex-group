@@ -4,10 +4,12 @@ import { CoreContentWorkspace } from "@/components/admin/core-content-workspace"
 import { ProjectsMediaWorkspace } from "@/components/admin/projects-media-workspace";
 import { ArticlesWorkspace } from "@/components/admin/articles-workspace";
 import { LandingPagePhotosWorkspace } from "@/components/admin/landing-page-photos-workspace";
+import { ServicePagesWorkspace } from "@/components/admin/service-pages-workspace";
 import { createClient } from "@/lib/supabase/server";
 
 const moduleInfo: Record<string,{title:string;description:string}> = {
   catalogue:{title:"Business structure",description:"Manage divisions, business units, categories, subcategories and services in English and French."},
+  "service-pages":{title:"Service page manager",description:"Edit bilingual service pages, search metadata, structured sections, cover images and galleries."},
   pages:{title:"Pages & sections",description:"Create and manage bilingual website pages and reusable content sections."},
   projects:{title:"Projects portfolio",description:"Approved project records, translations and associated media will be managed here."},
   articles:{title:"News & insights",description:"News, insights and announcements will be drafted, reviewed and published here."},
@@ -88,6 +90,39 @@ export default async function AdminModulePage({params}:{params:Promise<{module:s
         mediaAssets={(media ?? []) as never}
         canManageGlobal={canManageGlobal}
       />
+    </section>;
+  }
+
+  if(module === "service-pages") {
+    const supabase = await createClient();
+    if (!supabase) notFound();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) notFound();
+    const { data: roles } = await supabase.from("cms_role_assignments")
+      .select("role,division_id").eq("user_id",user.id).is("revoked_at",null);
+    const canManageGlobal = Boolean(roles?.some(role=>role.role==="super_admin"));
+    const assignedDivisionIds = [...new Set((roles ?? []).map(role=>role.division_id).filter((id):id is string=>Boolean(id)))];
+    if (!canManageGlobal && assignedDivisionIds.length===0) {
+      return <section><div className="cms-notice">No active division access is assigned to this account.</div></section>;
+    }
+    let serviceQuery = supabase.from("services")
+      .select("id,category_id,code,slug,sort_order,is_active,status,content_translations(locale_code,field_name,content),service_sections(id,section_key,section_type,sort_order,is_active,service_section_translations(locale_code,title,body)),categories(business_units(division_id,code,divisions(code)))")
+      .order("sort_order");
+    let mediaQuery = supabase.from("media_assets")
+      .select("id,division_id,object_path,original_filename,mime_type,byte_size,status")
+      .order("created_at",{ascending:false});
+    if (!canManageGlobal) {
+      const {data:units}=await supabase.from("business_units").select("id").in("division_id",assignedDivisionIds);
+      const unitIds=(units??[]).map(row=>row.id);
+      const {data:categories}=await supabase.from("categories").select("id").in("business_unit_id",unitIds);
+      const categoryIds=(categories??[]).map(row=>row.id);
+      serviceQuery=serviceQuery.in("category_id",categoryIds);
+      mediaQuery=mediaQuery.in("division_id",assignedDivisionIds);
+    }
+    const [{data:serviceData},{data:assetData}]=await Promise.all([serviceQuery,mediaQuery]);
+    return <section>
+      <div className="cms-page-heading"><div><p className="cms-eyebrow">CMS MODULE</p><h1>{item.title}</h1><p>{item.description}</p></div></div>
+      <ServicePagesWorkspace services={(serviceData??[]) as never} assets={(assetData??[]) as never} canManageGlobal={canManageGlobal}/>
     </section>;
   }
 
