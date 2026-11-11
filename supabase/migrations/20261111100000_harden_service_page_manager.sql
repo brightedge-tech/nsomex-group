@@ -7,6 +7,43 @@ alter table public.services alter column status set default 'draft';
 
 revoke all on function public.cms_guard_service_status() from public, anon, authenticated;
 
+create policy "CMS workflow can update service publication status"
+  on public.services for update to authenticated
+  using (
+    public.cms_has_permission('content.submit_review', (
+      select bu.division_id from public.categories c
+      join public.business_units bu on bu.id=c.business_unit_id
+      where c.id=services.category_id
+    ))
+    or public.cms_has_permission('content.publish', (
+      select bu.division_id from public.categories c
+      join public.business_units bu on bu.id=c.business_unit_id
+      where c.id=services.category_id
+    ))
+    or public.cms_has_permission('content.archive', (
+      select bu.division_id from public.categories c
+      join public.business_units bu on bu.id=c.business_unit_id
+      where c.id=services.category_id
+    ))
+  )
+  with check (
+    public.cms_has_permission('content.submit_review', (
+      select bu.division_id from public.categories c
+      join public.business_units bu on bu.id=c.business_unit_id
+      where c.id=services.category_id
+    ))
+    or public.cms_has_permission('content.publish', (
+      select bu.division_id from public.categories c
+      join public.business_units bu on bu.id=c.business_unit_id
+      where c.id=services.category_id
+    ))
+    or public.cms_has_permission('content.archive', (
+      select bu.division_id from public.categories c
+      join public.business_units bu on bu.id=c.business_unit_id
+      where c.id=services.category_id
+    ))
+  );
+
 drop policy if exists "CMS can create service sections" on public.service_sections;
 create policy "CMS can create service sections"
   on public.service_sections for insert to authenticated
