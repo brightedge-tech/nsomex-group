@@ -22,7 +22,7 @@ const moduleInfo: Record<string,{title:string;description:string}> = {
 
 type PageRow = {
   id:string; slug:string; template_key:string; status:"draft"|"review"|"published"|"archived";
-  division_id:string|null; show_in_navigation:boolean; navigation_order:number;
+  division_id:string|null; show_in_navigation:boolean; navigation_order:number; cover_image_path:string|null;
   page_translations:{locale_code:string;title:string;summary:string|null}[];
   page_sections:{
     id:string;section_key:string;section_type:string;status:"draft"|"published"|"archived";sort_order:number;
@@ -197,7 +197,7 @@ export default async function AdminModulePage({params}:{params:Promise<{module:s
     const supabase = await createClient();
     if (!supabase) notFound();
     const [{ data: pageData }, { data: { user } }] = await Promise.all([
-      supabase.from("pages").select("id,slug,template_key,status,division_id,show_in_navigation,navigation_order,page_translations(locale_code,title,summary),page_sections(id,section_key,section_type,status,sort_order,page_section_translations(locale_code,content))").order("updated_at",{ascending:false}),
+      supabase.from("pages").select("id,slug,template_key,status,division_id,show_in_navigation,navigation_order,cover_image_path,page_translations(locale_code,title,summary),page_sections(id,section_key,section_type,status,sort_order,page_section_translations(locale_code,content))").order("updated_at",{ascending:false}),
       supabase.auth.getUser(),
     ]);
     const { data: roles } = user
