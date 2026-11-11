@@ -1,5 +1,7 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+
 import { createClient } from "@/lib/supabase/server";
 
 type Result = { ok: true; id: string } | { ok: false; error: string };
@@ -79,7 +81,10 @@ export async function changeServicePageStatus(serviceId:string,divisionId:string
   const {error}=await auth.supabase.from("services").update({
     status,is_active:status!=="archived",published_at:status==="published"?new Date().toISOString():null
   }).eq("id",serviceId);
-  return error?{ok:false,error:error.message}:{ok:true,id:serviceId};
+  if(error)return {ok:false,error:error.message};
+  revalidatePath("/en/divisions/[slug]/[...segments]","page");
+  revalidatePath("/fr/divisions/[slug]/[...segments]","page");
+  return {ok:true,id:serviceId};
 }
 
 export async function saveServiceSection(input:{
