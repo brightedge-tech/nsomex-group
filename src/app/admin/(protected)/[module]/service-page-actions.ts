@@ -142,3 +142,16 @@ export async function attachMediaToService(input:{serviceId:string;divisionId:st
   },{onConflict:"service_id,media_asset_id"}).select("id").single();
   return error||!data?{ok:false,error:error?.message??"Unable to attach media."}:{ok:true,id:data.id};
 }
+
+export async function removeServiceMedia(mediaId:string,divisionId:string):Promise<Result>{
+  const auth=await authorize("content.edit",divisionId);
+  if(!auth.supabase)return {ok:false,error:auth.error};
+  const {data:link,error:lookupError}=await auth.supabase.from("service_media")
+    .select("id,service:services(categories(business_units(division_id)))").eq("id",mediaId).single();
+  const service=link?.service as unknown as {categories:{business_units:{division_id:string}|{division_id:string}[]}|{business_units:{division_id:string}|{division_id:string}[]}[]}|null;
+  const category=service?(Array.isArray(service.categories)?service.categories[0]:service.categories):undefined;
+  const unit=category?(Array.isArray(category.business_units)?category.business_units[0]:category.business_units):undefined;
+  if(lookupError||!link||unit?.division_id!==divisionId)return {ok:false,error:"The media link does not belong to this division."};
+  const {error}=await auth.supabase.from("service_media").delete().eq("id",mediaId);
+  return error?{ok:false,error:error.message}:{ok:true,id:mediaId};
+}

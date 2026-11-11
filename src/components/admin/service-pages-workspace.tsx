@@ -4,13 +4,14 @@ import { useEffect,useState,type ChangeEvent,type FormEvent } from "react";
 import { useRouter,useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/browser";
 import { changeMediaStatus,registerMediaAsset } from "@/app/admin/(protected)/[module]/project-actions";
-import { attachMediaToService,changeServicePageStatus,removeServiceSection,saveServicePage,saveServiceSection } from "@/app/admin/(protected)/[module]/service-page-actions";
+import { attachMediaToService,changeServicePageStatus,removeServiceMedia,removeServiceSection,saveServicePage,saveServiceSection } from "@/app/admin/(protected)/[module]/service-page-actions";
 
 type Translation={locale_code:string;field_name:string;content:string};
 type SectionTranslation={locale_code:string;title:string|null;body:string|null};
 type Section={id:string;section_key:string;section_type:"text"|"image_text"|"feature_grid"|"process"|"faq"|"callout";sort_order:number;service_section_translations:SectionTranslation[]};
-type Service={id:string;slug:string;code:string;status:"draft"|"review"|"published"|"archived";category_id:string;categories:{business_units:{division_id:string;code:string;divisions:{code:string}}|{division_id:string;code:string;divisions:{code:string}}[]}|{business_units:{division_id:string;code:string;divisions:{code:string}}|{division_id:string;code:string;divisions:{code:string}}[]}[];content_translations:Translation[];service_sections:Section[]};
+type Service={id:string;slug:string;code:string;status:"draft"|"review"|"published"|"archived";category_id:string;categories:{business_units:{division_id:string;code:string;divisions:{code:string}}|{division_id:string;code:string;divisions:{code:string}}[]}|{business_units:{division_id:string;code:string;divisions:{code:string}}|{division_id:string;code:string;divisions:{code:string}}[]}[];content_translations:Translation[];service_sections:Section[];service_media:AttachedMedia[]};
 type Asset={id:string;division_id:string;object_path:string;original_filename:string;mime_type:string;byte_size:number;status:string};
+type AttachedMedia={id:string;media_role:"cover"|"gallery";media_assets:{original_filename:string;status:string;mime_type:string}|{original_filename:string;status:string;mime_type:string}[]|null};
 type Props={services:Service[];assets:Asset[];canManageGlobal:boolean};
 const get=(rows:Translation[],locale:string,field:string)=>rows.find(x=>x.locale_code===locale&&x.field_name===field)?.content??"";
 const getSection=(rows:SectionTranslation[],locale:string)=>rows.find(x=>x.locale_code===locale);
@@ -103,12 +104,17 @@ export function ServicePagesWorkspace({services,assets}:Props){
     const en=getSection(item.service_section_translations,"en"),frText=getSection(item.service_section_translations,"fr");
     setSection({id:item.id,sectionKey:item.section_key,sectionType:item.section_type,sortOrder:item.sort_order,enTitle:en?.title??"",frTitle:frText?.title??"",enBody:en?.body??"",frBody:frText?.body??""});
   }
+  async function removeMedia(id:string){
+    setBusy(true);const result=await removeServiceMedia(id,divisionId);setBusy(false);
+    setMessage(result.ok?t.saved:result.error);if(result.ok)router.refresh();
+  }
   async function deleteSection(id:string){
     setBusy(true);const result=await removeServiceSection(id,divisionId);setBusy(false);
     setMessage(result.ok?t.saved:result.error);if(result.ok)router.refresh();
   }
   if(!services.length)return <div className="cms-notice">{t.empty}</div>;
   const availableAssets=assets.filter(a=>a.division_id===divisionId&&a.mime_type.startsWith("image/"));
+  const attachedMedia=selected?.service_media??[];
   return <div className="cms-projects-workspace">
     <div className="cms-projects-layout">
       <aside className="cms-projects-list"><div className="cms-pages-list-head"><strong>{t.services}</strong><span>{services.length}</span></div>
@@ -156,6 +162,7 @@ export function ServicePagesWorkspace({services,assets}:Props){
           </form>
         </section>
         <section className="cms-media-panel"><div className="cms-pages-editor-heading"><h2>{t.media}</h2></div>
+          <div className="cms-media-list">{attachedMedia.map(link=>{const asset=Array.isArray(link.media_assets)?link.media_assets[0]:link.media_assets;return <div className="cms-media-row" key={link.id}><div><strong>{asset?.original_filename??"Media asset"}</strong><span>{link.media_role} · {asset?.mime_type??""} · {asset?.status??""}</span></div><button type="button" disabled={busy} onClick={()=>removeMedia(link.id)}>{t.remove}</button></div>;})}</div>
           <label>{t.upload}<input type="file" accept="image/jpeg,image/png,image/webp,image/avif" onChange={upload} disabled={uploading}/></label>
           <div className="cms-media-list">{availableAssets.map(asset=><div className="cms-media-row" key={asset.id}><div><strong>{asset.original_filename}</strong><span>{asset.mime_type} · {asset.status}</span></div><button type="button" onClick={()=>setAssetStatus(asset)} disabled={busy}>{asset.status==="published"?"Return to draft":"Publish media"}</button></div>)}</div>
           <div className="cms-editor-two"><label>{t.chooseFile}<select value={mediaId} onChange={e=>setMediaId(e.target.value)}><option value="">—</option>{availableAssets.map(a=><option key={a.id} value={a.id}>{a.original_filename}</option>)}</select></label>

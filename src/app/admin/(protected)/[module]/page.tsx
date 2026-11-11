@@ -106,7 +106,7 @@ export default async function AdminModulePage({params}:{params:Promise<{module:s
       return <section><div className="cms-notice">No active division access is assigned to this account.</div></section>;
     }
     let serviceQuery = supabase.from("services")
-      .select("id,category_id,code,slug,sort_order,is_active,status,content_translations(locale_code,field_name,content),service_sections(id,section_key,section_type,sort_order,is_active,service_section_translations(locale_code,title,body)),categories(business_units(division_id,code,divisions(code)))")
+      .select("id,category_id,code,slug,sort_order,is_active,status,content_translations(locale_code,field_name,content),service_sections(id,section_key,section_type,sort_order,is_active,service_section_translations(locale_code,title,body)),service_media(id,media_role,sort_order,media_assets(original_filename,status,mime_type)),categories(business_units(division_id,code,divisions(code)))")
       .order("sort_order");
     let mediaQuery = supabase.from("media_assets")
       .select("id,division_id,object_path,original_filename,mime_type,byte_size,status")
