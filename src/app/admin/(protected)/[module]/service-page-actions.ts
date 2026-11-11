@@ -69,6 +69,13 @@ export async function changeServicePageStatus(serviceId:string,divisionId:string
   const category=Array.isArray(service?.categories)?service?.categories[0]:service?.categories;
   const unit=Array.isArray(category?.business_units)?category?.business_units[0]:category?.business_units;
   if(lookupError||!service||unit?.division_id!==divisionId)return {ok:false,error:"Service access could not be verified."};
+  if(status==="published"){
+    const {data:descriptions,error:descriptionError}=await auth.supabase.from("content_translations")
+      .select("locale_code,content").eq("service_id",serviceId).eq("field_name","description").in("locale_code",["en","fr"]);
+    if(descriptionError)return {ok:false,error:descriptionError.message};
+    const ready=new Set((descriptions??[]).filter(row=>typeof row.content==="string"&&row.content.trim()).map(row=>row.locale_code));
+    if(!ready.has("en")||!ready.has("fr"))return {ok:false,error:"Add and save the full service description in both English and French before publishing."};
+  }
   const {error}=await auth.supabase.from("services").update({
     status,is_active:status!=="archived",published_at:status==="published"?new Date().toISOString():null
   }).eq("id",serviceId);
