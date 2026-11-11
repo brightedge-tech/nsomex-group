@@ -92,7 +92,13 @@ export function PagesWorkspace({ pages, divisions, canManageGlobal }: Props) {
 
   async function updateStatus(status: "draft" | "review" | "published" | "archived") {
     if (!pageForm.id) return;
-    setBusy(true); setMessage("");
+    setBusy(true); setMessage(locale==="fr"?"Enregistrement des modifications avant publication…":"Saving your latest page edits before publishing…");
+    const savedPage = await savePage({ ...pageForm, divisionId: pageForm.divisionId || null });
+    if (!savedPage.ok) { setBusy(false); setMessage(savedPage.error); return; }
+    if (sectionForm.sectionKey.trim()) {
+      const savedSection = await saveSection({ ...sectionForm, pageId: pageForm.id });
+      if (!savedSection.ok) { setBusy(false); setMessage(savedSection.error); return; }
+    }
     const result = await changePageStatus(pageForm.id, status);
     setBusy(false);
     setMessage(result.ok ? `${t.pageStatus} ${status}.` : result.error);
