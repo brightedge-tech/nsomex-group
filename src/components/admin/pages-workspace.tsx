@@ -163,10 +163,10 @@ export function PagesWorkspace({ pages, divisions, canManageGlobal }: Props) {
           </label>
           <div className="cms-editor-language"><strong>{t.english}</strong><span>EN</span></div>
           <label>{t.pageTitle}<input required maxLength={200} value={pageForm.enTitle} onChange={e=>setPageForm({...pageForm,enTitle:e.target.value})} /></label>
-          <label>{t.summary}<textarea rows={2} maxLength={600} value={pageForm.enSummary} onChange={e=>setPageForm({...pageForm,enSummary:e.target.value})} /></label>
+          <label>{t.summary}<textarea rows={5} maxLength={600} value={pageForm.enSummary} onChange={e=>setPageForm({...pageForm,enSummary:e.target.value})} /></label>
           <div className="cms-editor-language"><strong>{t.french}</strong><span>FR</span></div>
           <label>{t.pageTitleFr}<input required maxLength={200} value={pageForm.frTitle} onChange={e=>setPageForm({...pageForm,frTitle:e.target.value})} /></label>
-          <label>{t.summaryFr}<textarea rows={2} maxLength={600} value={pageForm.frSummary} onChange={e=>setPageForm({...pageForm,frSummary:e.target.value})} /></label>
+          <label>{t.summaryFr}<textarea rows={5} maxLength={600} value={pageForm.frSummary} onChange={e=>setPageForm({...pageForm,frSummary:e.target.value})} /></label>
           <div className="cms-editor-two">
             <label>{t.navigationOrder}<input type="number" min={0} max={9999} value={pageForm.navigationOrder} onChange={e=>setPageForm({...pageForm,navigationOrder:Number(e.target.value)})} /></label>
             <label className="cms-editor-check"><input type="checkbox" checked={pageForm.showInNavigation} onChange={e=>setPageForm({...pageForm,showInNavigation:e.target.checked})} /> {t.showNavigation}</label>
@@ -192,8 +192,8 @@ export function PagesWorkspace({ pages, divisions, canManageGlobal }: Props) {
             </div>
             <label>{t.order}<input type="number" min={0} max={9999} value={sectionForm.sortOrder} onChange={e=>setSectionForm({...sectionForm,sortOrder:Number(e.target.value)})} /></label>
             <div className="cms-editor-two">
-              <label>{t.englishJson}<textarea required rows={7} value={sectionForm.enContent} onChange={e=>setSectionForm({...sectionForm,enContent:e.target.value})} /></label>
-              <label>{t.frenchJson}<textarea required rows={7} value={sectionForm.frContent} onChange={e=>setSectionForm({...sectionForm,frContent:e.target.value})} /></label>
+              <label>{t.englishJson}<textarea required rows={18} className="cms-long-content" value={sectionForm.enContent} onChange={e=>setSectionForm({...sectionForm,enContent:e.target.value})} /></label>
+              <label>{t.frenchJson}<textarea required rows={18} className="cms-long-content" value={sectionForm.frContent} onChange={e=>setSectionForm({...sectionForm,frContent:e.target.value})} /></label>
             </div>
             <button className="cms-login-submit" type="submit" disabled={busy}>{busy ? t.saving : t.saveSection}</button>
             {sectionForm.id && <button type="button" className="cms-pages-new" onClick={()=>setSectionForm({...emptySection,pageId:pageForm.id ?? ""})}>{t.cancelSection}</button>}
