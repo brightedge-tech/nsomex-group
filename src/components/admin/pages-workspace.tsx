@@ -276,12 +276,26 @@ function mergeSectionImage(value:string,imagePath:string,imageAlt:string):string
 }
 
 function SectionContentFields({locale,value,onChange}:{locale:"en"|"fr";value:string;onChange:(value:string)=>void}){
- let data:Record<string,unknown>={};try{const parsed=JSON.parse(value);if(parsed&&typeof parsed==="object"&&!Array.isArray(parsed))data=parsed;}catch{}
- const heading=typeof data.heading==="string"?data.heading:"";const body=typeof data.body==="string"?data.body:"";
- function update(key:"heading"|"body",next:string){onChange(JSON.stringify({...data,[key]:next},null,2));}
+ type Item={title?:string;description?:string};
+ let data:Record<string,unknown>={};
+ try{const parsed=JSON.parse(value);if(parsed&&typeof parsed==="object"&&!Array.isArray(parsed))data=parsed;}catch{}
+ const text=(key:string)=>typeof data[key]==="string"?data[key] as string:"";
+ const items=Array.isArray(data.items)?data.items.filter((item):item is Item=>Boolean(item)&&typeof item==="object"&&!Array.isArray(item)):[];
+ function update(key:string,next:unknown){onChange(JSON.stringify({...data,[key]:next},null,2));}
+ function updateItem(index:number,key:"title"|"description",next:string){const nextItems=[...items];nextItems[index]={...nextItems[index],[key]:next};update("items",nextItems);}
  const fr=locale==="fr";
  return <div className="cms-section-content-fields">
-  <label>{fr?"Titre de section":"Section heading"}<input maxLength={200} value={heading} onChange={e=>update("heading",e.target.value)}/></label>
-  <label>{fr?"Texte de section":"Section text"}<textarea rows={12} maxLength={20000} value={body} onChange={e=>update("body",e.target.value)}/></label>
+  <label>{fr?"Petit titre / surtitre":"Eyebrow / small label"}<input maxLength={120} value={text("eyebrow")} onChange={e=>update("eyebrow",e.target.value)}/></label>
+  <label>{fr?"Titre de section":"Section heading"}<input maxLength={200} value={text("heading")} onChange={e=>update("heading",e.target.value)}/></label>
+  <label>{fr?"Texte d’introduction":"Lead / introduction"}<textarea rows={3} maxLength={1200} value={text("lead")} onChange={e=>update("lead",e.target.value)}/></label>
+  <label>{fr?"Texte de section":"Section text"}<textarea rows={10} maxLength={20000} value={text("body")} onChange={e=>update("body",e.target.value)}/></label>
+  <div className="cms-section-items">
+   <div className="cms-pages-editor-heading"><strong>{fr?"Éléments / cartes":"Items / cards"}</strong><button type="button" onClick={()=>update("items",[...items,{title:"",description:""}])}>{fr?"＋ Ajouter un élément":"＋ Add item"}</button></div>
+   {items.map((item,index)=><div className="cms-section-item-editor" key={index}>
+    <div className="cms-pages-editor-heading"><strong>{fr?"Élément":"Item"} {index+1}<button type="button" onClick={()=>update("items",items.filter((_,i)=>i!==index))}>{fr?"Supprimer":"Remove"}</button></strong></div>
+    <label>{fr?"Titre":"Title"}<input maxLength={160} value={item.title??""} onChange={e=>updateItem(index,"title",e.target.value)}/></label>
+    <label>{fr?"Description":"Description"}<textarea rows={3} maxLength={1200} value={item.description??""} onChange={e=>updateItem(index,"description",e.target.value)}/></label>
+   </div>)}
+  </div>
  </div>;
 }
