@@ -3,7 +3,7 @@ import Link from "next/link";
 import {notFound,redirect} from "next/navigation";
 import {getDictionary} from "@/i18n/dictionaries";
 import {isLocale} from "@/i18n/config";
-import {catalogueText,getPublicBusinessUnit,getPublicCategory,getPublicService} from "@/lib/public-catalogue";
+import {catalogueText,getPublicBusinessUnit,getPublicCategory,getPublicService,getPublicServiceMetadata} from "@/lib/public-catalogue";
 import {SiteHeader} from "@/components/site-header";
 import {SiteFooter} from "@/components/site-footer";
 import {MediaPlaceholder} from "@/components/media-placeholder";
@@ -15,7 +15,7 @@ export async function generateMetadata({params}:Props):Promise<Metadata>{
  const [unitSlug,categorySlug,serviceSlug]=segments;
  if(segments.length===1){const r=await getPublicBusinessUnit(slug,unitSlug);return r?{title:catalogueText(r.unit.content_translations,locale,"name"),description:catalogueText(r.unit.content_translations,locale,"summary")}:{};}
  if(segments.length===2){const r=await getPublicCategory(slug,unitSlug,categorySlug);return r?{title:catalogueText(r.category.content_translations,locale,"name")}:{};}
- if(segments.length===3){const r=await getPublicService(slug,unitSlug,categorySlug,serviceSlug);return r?{
+ if(segments.length===3){const r=await getPublicServiceMetadata(slug,unitSlug,categorySlug,serviceSlug);return r?{
   title:catalogueText(r.service.content_translations,locale,"seo_title")||catalogueText(r.service.content_translations,locale,"name"),
   description:catalogueText(r.service.content_translations,locale,"seo_description")||catalogueText(r.service.content_translations,locale,"summary")
  }:{};}
