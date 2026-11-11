@@ -42,7 +42,7 @@ export function PagesWorkspace({ pages, divisions, canManageGlobal }: Props) {
     navigationOrder:"Ordre de navigation", showNavigation:"Afficher dans la navigation du site", savePage:"Enregistrer la page",
     saving:"Enregistrement…", reusable:"CONTENU RÉUTILISABLE", sections:"Sections de la page", sectionCount:"sections",
     editSection:"Modifier la section", addSection:"Ajouter une section", sectionKey:"Clé de section", sectionType:"Type de section",
-    order:"Ordre", englishJson:"Contenu anglais (JSON)", frenchJson:"Contenu français (JSON)", saveSection:"Enregistrer la section",
+    order:"Ordre", englishJson:"Contenu de section (anglais)", frenchJson:"Contenu de section (français)", saveSection:"Enregistrer la section",
     cancelSection:"Annuler la modification", workflow:"Cycle de publication", draft:"Brouillon", review:"Soumettre à la validation",
     publish:"Publier", archive:"Archiver", pageSaved:"Page enregistrée. Les deux versions linguistiques sont stockées.",
     sectionSaved:"Section enregistrée en anglais et en français.", pageStatus:"Statut de la page modifié :", sectionStatus:"Statut de la section modifié :",
@@ -54,7 +54,7 @@ export function PagesWorkspace({ pages, divisions, canManageGlobal }: Props) {
     navigationOrder:"Navigation order", showNavigation:"Show in website navigation", savePage:"Save page",
     saving:"Saving…", reusable:"REUSABLE CONTENT", sections:"Page sections", sectionCount:"sections",
     editSection:"Edit section", addSection:"Add a section", sectionKey:"Section key", sectionType:"Section type",
-    order:"Order", englishJson:"English content (JSON)", frenchJson:"French content (JSON)", saveSection:"Save section",
+    order:"Order", englishJson:"English section content", frenchJson:"French section content", saveSection:"Save section",
     cancelSection:"Cancel section edit", workflow:"Page workflow", draft:"Save as draft", review:"Submit for review",
     publish:"Publish page", archive:"Archive", pageSaved:"Page saved. Both language versions are stored.",
     sectionSaved:"Section saved in English and French.", pageStatus:"Page status changed to", sectionStatus:"Section status changed to",
@@ -175,7 +175,7 @@ export function PagesWorkspace({ pages, divisions, canManageGlobal }: Props) {
         </form>
 
         {selectedPage && <div className="cms-section-editor">
-          <div className="cms-pages-editor-heading"><div><p className="cms-eyebrow">{t.reusable}</p><h2>{t.sections}</h2></div><span className="cms-module-tag">{sections.length} {t.sectionCount}</span></div>
+          <div className="cms-pages-editor-heading"><div><p className="cms-eyebrow">{t.reusable}</p><h2>{t.sections}</h2><p>{locale==="fr"?"Une page est la destination complète du site. Les sections sont les blocs de contenu affichés dans l’ordre sur cette page.":"A page is the complete website destination. Sections are the content blocks displayed in order within that page."}</p></div><span className="cms-module-tag">{sections.length} {t.sectionCount}</span></div>
           {sections.map(section=><div className="cms-section-row" key={section.id}>
             <button type="button" className="cms-section-edit" onClick={()=>editSection(section)}><strong>{section.section_key}</strong><span>{section.section_type} · {section.status}</span></button>
             <div className="cms-section-actions">
@@ -192,8 +192,8 @@ export function PagesWorkspace({ pages, divisions, canManageGlobal }: Props) {
             </div>
             <label>{t.order}<input type="number" min={0} max={9999} value={sectionForm.sortOrder} onChange={e=>setSectionForm({...sectionForm,sortOrder:Number(e.target.value)})} /></label>
             <div className="cms-editor-two">
-              <label>{t.englishJson}<textarea required rows={18} className="cms-long-content" value={sectionForm.enContent} onChange={e=>setSectionForm({...sectionForm,enContent:e.target.value})} /></label>
-              <label>{t.frenchJson}<textarea required rows={18} className="cms-long-content" value={sectionForm.frContent} onChange={e=>setSectionForm({...sectionForm,frContent:e.target.value})} /></label>
+              <SectionContentFields locale="en" value={sectionForm.enContent} onChange={value=>setSectionForm(current=>({...current,enContent:value}))} />
+              <SectionContentFields locale="fr" value={sectionForm.frContent} onChange={value=>setSectionForm(current=>({...current,frContent:value}))} />
             </div>
             <button className="cms-login-submit" type="submit" disabled={busy}>{busy ? t.saving : t.saveSection}</button>
             {sectionForm.id && <button type="button" className="cms-pages-new" onClick={()=>setSectionForm({...emptySection,pageId:pageForm.id ?? ""})}>{t.cancelSection}</button>}
@@ -213,4 +213,16 @@ export function PagesWorkspace({ pages, divisions, canManageGlobal }: Props) {
       </section>
     </div>
   </div>;
+}
+
+
+function SectionContentFields({locale,value,onChange}:{locale:"en"|"fr";value:string;onChange:(value:string)=>void}){
+ let data:Record<string,unknown>={};try{const parsed=JSON.parse(value);if(parsed&&typeof parsed==="object"&&!Array.isArray(parsed))data=parsed;}catch{}
+ const heading=typeof data.heading==="string"?data.heading:"";const body=typeof data.body==="string"?data.body:"";
+ function update(key:"heading"|"body",next:string){onChange(JSON.stringify({...data,[key]:next},null,2));}
+ const fr=locale==="fr";
+ return <div className="cms-section-content-fields">
+  <label>{fr?"Titre de section":"Section heading"}<input maxLength={200} value={heading} onChange={e=>update("heading",e.target.value)}/></label>
+  <label>{fr?"Texte de section":"Section text"}<textarea rows={12} maxLength={20000} value={body} onChange={e=>update("body",e.target.value)}/></label>
+ </div>;
 }
