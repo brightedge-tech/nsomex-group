@@ -63,7 +63,7 @@ export default async function CataloguePathPage({params}:Props){
   {cover?<section className="section-wrap service-detail-media"><MediaPlaceholder label={serviceName} detail={""} ratio="wide" imageUrl={cover.url}/></section>:null}
   <section className="section-wrap service-detail-content">
    {description&&<div className="service-detail-intro"><div><p className="eyebrow dark-eyebrow">{t.serviceScope}</p><h2>{serviceName}</h2><p>{description}</p></div></div>}
-   {sections.length>0?<div className="capability-panels">{sections.map((section:{id:string;section_key:string;section_type:string;service_section_translations:{locale_code:string;title:string|null;body:string|null}[])=>{
+   {sections.length>0?<div className="capability-panels">{sections.map((section:{id:string;section_key:string;section_type:string;service_section_translations:{locale_code:string;title:string|null;body:string|null}[]},index:number)=>{
     const tr=section.service_section_translations.find(x=>x.locale_code===locale)??section.service_section_translations.find(x=>x.locale_code==="en");
     if(!tr||(!tr.title&&!tr.body))return null;
     return <article className="capability-panel" key={section.id}><p className="eyebrow dark-eyebrow">{String(index+1).padStart(2,"0")} / {section.section_type.replaceAll("_"," ")}</p>{tr.title&&<h2>{tr.title}</h2>}{tr.body&&<p style={{whiteSpace:"pre-line"}}>{tr.body}</p>}</article>;
