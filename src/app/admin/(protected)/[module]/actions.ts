@@ -130,8 +130,22 @@ export async function changePageStatus(pageId: string, status: "draft" | "review
   const values = status === "published"
     ? { status, published_at: new Date().toISOString() }
     : { status, published_at: null };
-  const { error } = await supabase.from("pages").update(values).eq("id", pageId);
+  // Request the updated row: PostgREST can return no error when RLS silently
+  // filters an UPDATE to zero rows. Never tell the editor publishing succeeded
+  // unless the database confirms the final status.
+  const { data: updatedPage, error } = await supabase
+    .from("pages")
+    .update(values)
+    .eq("id", pageId)
+    .select("id,slug,status")
+    .maybeSingle();
   if (error) return { ok: false, error: error.message };
+  if (!updatedPage) {
+    return { ok: false, error: "The database did not update this page. Check your CMS publishing permissions and try again." };
+  }
+  if (updatedPage.status !== status) {
+    return { ok: false, error: `The page was not moved to ${status}. Its current status is ${updatedPage.status}. Please review the page permissions and publishing requirements.` };
+  }
   revalidatePath(`/en/pages/${page.slug}`);
   revalidatePath(`/fr/pages/${page.slug}`);
   if (page.slug === "about") { revalidatePath("/en/about"); revalidatePath("/fr/about"); }
